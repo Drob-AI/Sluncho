@@ -23,12 +23,20 @@ public class ThreeGramProbabilityRepo {
 
 	private static void extractThreeGramInfo(HashMap<String, Integer> threeGramProbabilities, ThreeGramRows next) {
 		String threeGramKey = next.generateThreeGramKey();
+		String threeGramTypeKey = next.generateThreeGramTypeKey();
+
 		Integer threeGramCount = threeGramProbabilities.get(threeGramKey);
 		if (threeGramCount == null) {
 			threeGramProbabilities.put(threeGramKey, next.frequency);
 		} else {
 			threeGramProbabilities.put(threeGramKey, threeGramCount + next.frequency);
 		}
+
+		if (foundThreeGramTypes.get(threeGramTypeKey) == null) {
+			allThreeGramType++;
+			foundThreeGramTypes.put(threeGramTypeKey, true);
+		}
+
 
 	}
 
@@ -43,6 +51,9 @@ public class ThreeGramProbabilityRepo {
 	}
 
 	private static Integer allThreeGrams = 1;
+
+	private static Integer allThreeGramType = 0;
+	private static HashMap<String, Boolean> foundThreeGramTypes = new HashMap<>();
 
 	public static BigDecimal getWordProbability(String[] word) {
 		Integer wCount = ThreeGramProbabilityRepo.wordsCount.get(word[0] + word[1]);
@@ -62,13 +73,14 @@ public class ThreeGramProbabilityRepo {
 
 	@SuppressWarnings("unchecked")
 	public static void loadProbability() {
-		
+
 		BigGramProbabilitiyRepo.loadProbability();
 		try {
 			@SuppressWarnings("resource")
 			Scanner in = new Scanner(new FileReader(fileForSave + ".int"));
 			allThreeGrams = in.nextInt();
-
+			allThreeGramType = in.nextInt();
+			
 			FileInputStream fis = new FileInputStream(fileForSave + ".hash");
 			@SuppressWarnings("resource")
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -99,7 +111,9 @@ public class ThreeGramProbabilityRepo {
 		try {
 			@SuppressWarnings("resource")
 			Writer wr = new FileWriter(fileForSave + ".int");
-			wr.write(new Integer(allThreeGrams).toString());
+			wr.write(allThreeGrams.toString());
+			wr.write(" ");
+			wr.write(allThreeGramType.toString());
 			wr.close();
 
 			fos = new FileOutputStream(fileForSave + ".hash");
@@ -165,7 +179,7 @@ public class ThreeGramProbabilityRepo {
 				.get(ThreeGramRows.generateThreeGramKey(firstWordWithType, secondWordWithType, thridWordWithType));
 
 		if (threeGramProb == null) {
-			threeGramProb = new BigDecimal(1).divide(new BigDecimal(allThreeGrams + 1), 100, RoundingMode.HALF_UP);
+			threeGramProb = new BigDecimal(allThreeGramType).divide(new BigDecimal(allThreeGrams + allThreeGramType), 100, RoundingMode.HALF_UP);
 		}
 
 		return threeGramProb;
