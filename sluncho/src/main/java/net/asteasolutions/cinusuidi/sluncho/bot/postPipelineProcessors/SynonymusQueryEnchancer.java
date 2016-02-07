@@ -17,7 +17,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
+//import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import edu.smu.tspell.wordnet.AdjectiveSynset;
 import edu.smu.tspell.wordnet.AdverbSynset;
