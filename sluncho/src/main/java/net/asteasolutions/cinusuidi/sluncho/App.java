@@ -32,11 +32,10 @@ public class App
 {
     public static QuestionParser questionParser = new QuestionParser();
     public static void main(String args[]) throws IOException, URISyntaxException, GateException, QuestionParserException {
-        Out.prln(System.getProperty("gate.home", "/home/mihail/GATE_Developer_8.1"));
-        System.setProperty("wordnet.database.dir", "/home/mihail/Downloads/WordNet-3.0/dict");
-        System.setProperty("gate.astea.app.home", "/home/mihail/Projects/Sluncho/resources/gate");
-        Properties props = System.getProperties();
-        props.setProperty("gate.home", "/home/mihail/GATE_Developer_8.1");
+//      Ensure the following startup parameters are set for java VM (with -D options):
+//      -Dgate.home=<absolute path to gate>
+//      -Dwordnet.database.dir=<absolute path to wordnet database>
+//      -Dgate.astea.app.home=<absolute project path>/resources/gate
 
         //fetch data and train name entity corrector index
 
