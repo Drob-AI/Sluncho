@@ -1,0 +1,45 @@
+Phase: ExtractChunkAnnotations
+Input: Token
+Options: control = appelt
+
+Rule: ExtractAnnots
+(
+	{Token.chunk ==~ "B-.+"} ({Token.chunk ==~ "I-.+"})*
+):token
+-->
+{
+	try {
+		
+		AnnotationSet tokens = (AnnotationSet) bindings.get("token");
+		long sO = tokens.firstNode().getOffset();
+		long eO = tokens.lastNode().getOffset();
+		
+		List<gate.Annotation> tokensSorted = new ArrayList<gate.Annotation>(tokens);
+		Collections.sort(tokensSorted, new OffsetComparator());
+	
+		StringBuilder posSequence = new StringBuilder();
+		for (gate.Annotation token : tokensSorted) {
+			posSequence.append("_").append(token.getFeatures().get("category"));
+		}
+		String docString = doc.getContent().getContent(sO, eO).toString();
+	
+		String type = (String)tokensSorted.iterator().next().getFeatures().get("chunk");
+		type = type.substring(2).trim();
+		
+		FeatureMap features = Factory.newFeatureMap();
+		features.put("string", docString);
+		features.put("category", posSequence);
+	
+		outputAS.add(sO, eO, type, features);
+		
+	} catch (Exception e) {
+		throw new LuckyException(e);
+	}
+}
+
+Rule: ExtractAnnots2
+(
+	{Token.chunk == "O"}
+):bind
+-->
+:bind.CHK-O = {rule="CHK_O"}

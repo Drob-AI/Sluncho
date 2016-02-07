@@ -1,0 +1,10 @@
+Phase: PreferGood
+Input: Lookup Token
+Options: control = appelt
+
+Rule: PreferGood
+(
+ ({Lookup.majorType == "prefer"})
+):match
+-->
+:match.Prefer = {rule="PreferGood"}

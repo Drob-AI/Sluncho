@@ -1,0 +1,51 @@
+Phase: StopWord
+Input: Lookup Token
+Options: control = once
+
+Rule: TestStopWord
+(
+ ({Lookup.majorType == stop})
+):match
+-->
+{
+        try {
+            AnnotationSet lookups = doc.getAnnotations().get("Lookup");
+            FeatureMap fm = new SimpleFeatureMapImpl();
+            fm.put("majorType", "stop");
+
+            AnnotationSet lookupsStop = lookups.get("Lookup", fm);
+
+            for(Annotation lookup : lookupsStop){
+                Annotation token = doc.getAnnotations().get("Token", lookup.getStartNode().getOffset(),
+                        lookup.getEndNode().getOffset()).iterator().next();
+                token.getFeatures().put("stop", "true");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+}
+
+Phase: IgnoreBad
+Input: Lookup Token
+Options: control = appelt
+
+Rule: IgnoreBad
+(
+ ({Lookup.majorType == "ignore"})
+):match
+-->
+:match.Ignore = {rule="IgnoreBad"}
+
+
+
+Phase: PreferGood
+Input: Lookup Token
+Options: control = appelt
+
+Rule: PreferGood
+(
+ ({Lookup.majorType == "prefer"})
+):match
+-->
+:match.Prefer = {rule="PreferGood"}

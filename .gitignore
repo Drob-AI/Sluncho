@@ -1,6 +1,6 @@
 *.jar
 .metadata
-resources/
+
 */.metadata
 sluncho/.classpath
 sluncho/.project
