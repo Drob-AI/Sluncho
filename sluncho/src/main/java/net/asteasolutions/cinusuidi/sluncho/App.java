@@ -32,11 +32,11 @@ public class App
 {
     public static QuestionParser questionParser = new QuestionParser();
     public static void main(String args[]) throws IOException, URISyntaxException, GateException, QuestionParserException {
-        Out.prln(System.getProperty("gate.home", "/home/mihail/GATE_Developer_8.1"));
-        System.setProperty("wordnet.database.dir", "/home/mihail/Downloads/WordNet-3.0/dict");
-        System.setProperty("gate.astea.app.home", "/home/mihail/Projects/Sluncho/resources/gate");
+        Out.prln(System.getProperty("gate.home", "/home/hary/GATE_Developer_8.1"));
+        System.setProperty("wordnet.database.dir", "/home/hary/D/Downloads/WordNet-3.0/dict");
+        System.setProperty("gate.astea.app.home", "/home/hary/D/sluncho/resources/gate");
         Properties props = System.getProperties();
-        props.setProperty("gate.home", "/home/mihail/GATE_Developer_8.1");
+        props.setProperty("gate.home", "/home/hary/GATE_Developer_8.1");
 
         //fetch data and train name entity corrector index
 
@@ -57,16 +57,17 @@ public class App
 
         //calculates probability for 3-grams
         ThreeGramProbabilityRepo.loadProbability();
-
         Scanner s = new Scanner(System.in);
-        String question = s.nextLine();
-        String answer;
-        try {
-            answer = Bot.getAnswer(question);
-            System.out.println(answer);
-        } catch (QuestionParserException e) {
-        // TODO Auto-generated catch block
+        while (true) {
+	        String question = s.nextLine();
+	        String answer;
+	        try {
+	            answer = Bot.getAnswer(question);
+	            System.out.println(answer);
+	        } catch (QuestionParserException e) {
+	        // TODO Auto-generated catch block
+	        }
         }
-        s.close();
+//        s.close();
     }
 }
