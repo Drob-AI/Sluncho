@@ -35,11 +35,8 @@ public class App
 {
     public static QuestionParser questionParser = new QuestionParser();
     public static void main(String args[]) throws IOException, URISyntaxException, GateException, QuestionParserException {
-        Out.prln(System.getProperty("gate.home", "/home/marmot/GATE_Developer_8.1"));
-        System.setProperty("wordnet.database.dir", "/home/marmot/Downloads/WordNet-3.0/dict");
-        System.setProperty("gate.astea.app.home", "/home/marmot/Downloads/sluncho/resources/gate");
-        Properties props = System.getProperties();
-        props.setProperty("gate.home", "/home/marmot/GATE_Developer_8.1");
+    	// TODO add this file in git ignore
+    	BeforeStartConfig.configSystemProperties();
 
         //fetch data and train name entity corrector index
 
