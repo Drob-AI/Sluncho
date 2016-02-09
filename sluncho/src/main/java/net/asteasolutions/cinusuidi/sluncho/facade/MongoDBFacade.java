@@ -22,7 +22,7 @@ public class MongoDBFacade {
     private MongoDatabase slunchoDB;
     public MongoDBFacade() {
         mongoClient = new MongoClient("localhost", 27017);
-        slunchoDB = mongoClient.getDatabase("sluncho");
+        slunchoDB = mongoClient.getDatabase("sluncho");      
     }
 
     public ArrayList<Document> getAllDocIds() {
