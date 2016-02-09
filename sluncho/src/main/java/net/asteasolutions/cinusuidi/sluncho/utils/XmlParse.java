@@ -21,15 +21,20 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
+import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 public class XmlParse {
+    
+    private static final byte ORIGINAL_QUESTION = 0;
+    
+    private static final byte RELEVANT_QUESTION = 1;
 
     private final String filePath;
-    
+
     private final String fileName;
 
     public XmlParse(String filePath, String fileName) {
@@ -91,10 +96,10 @@ public class XmlParse {
                 String originalQuestionId = question.valueOf("@ORGQ_ID");
                 if (documentMap.isEmpty() || !documentMap.containsKey(originalQuestionId)) {
                     Map<String, Object> orgQ = setOriginalQProperties(question);
-                    Map<String, Object> relQuestion = (Map<String, Object>) orgQ.get("RelQuestion");                   
-                    relQuestion = setRelQProperties(question, relQuestion);                  
+                    Map<String, Object> relQuestion = (Map<String, Object>) orgQ.get("RelQuestion");
+                    relQuestion = setRelQProperties(question, relQuestion);
                     Map<String, Object> relComment = (Map<String, Object>) relQuestion.get("RelComment");
-                    setRelCommentProperties(question, relComment);                  
+                    setRelCommentProperties(question, relComment);
                     documentMap.put(originalQuestionId, orgQ);
                 } else if (documentMap.containsKey(originalQuestionId)) {
                     Map<String, Object> orgQ = (Map<String, Object>) documentMap.get(originalQuestionId);
@@ -110,16 +115,30 @@ public class XmlParse {
         }
         return documentMap;
     }
-    
-    
 
     public void parseFileAndSaveToDatabase() {
         Map<String, Object> documentMap = parseFile();
         if (!documentMap.isEmpty()) {
-            documentMap.put("id", fileName);
             MongoDBFacade mongoConnection = new MongoDBFacade();
-            mongoConnection.createXmlDocument(documentMap);
+            
+            for (Map.Entry<String, Object> entry : documentMap.entrySet()) {
+                String id = entry.getKey();
+                Map<String, Object> orgQuestionInfo = (Map<String, Object>) entry.getValue();
+
+                Question originalQ = new Question(ORIGINAL_QUESTION, id, (String) orgQuestionInfo.get("OrgQBody"));
+                mongoConnection.createXmlDocument(originalQ);
+                
+                Map<String, Object> relevantQ = (Map<String, Object>) orgQuestionInfo.get("RelQuestion");
+                for (Object relQValue : relevantQ.values()) {
+                    Map<String, Object> relQuestionInfo = (Map<String, Object>) relQValue;
+                    String body = (String) relQuestionInfo.get("RelQBody");
+                    String isRelevant = (String) relQuestionInfo.get("IsRelevant");
+                    Question relativeQ = new Question(RELEVANT_QUESTION, id, body, isRelevant);
+                    mongoConnection.createXmlDocument(relativeQ);
+                }
+            }
         }
+
     }
 
     public void parseXmlAndSaveToFile(String fileName, String saveFileLocation) throws IOException {

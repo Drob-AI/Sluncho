@@ -6,6 +6,7 @@ import gate.util.Out;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -20,11 +21,11 @@ import net.asteasolutions.cinusuidi.sluncho.data.FileSystemDocumentRepository;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.HtmlDocumentParser;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
+import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QuestionParser;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 import net.asteasolutions.cinusuidi.sluncho.utils.ThreeGramProbabilityRepo;
 import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
-import org.bson.Document;
 
 /**
  * Hello world!
@@ -63,12 +64,12 @@ public class App
         //change the file location
 
         MongoDBFacade mongoConnection = new MongoDBFacade();
-        Document xmlDocumentInDatabase = mongoConnection.getXmlDocument(System.getProperty("dataPath"));              
-        if(xmlDocumentInDatabase == null){
+        List<Question> originalQuestions = mongoConnection.getAllOriginalQuestions();              
+        if(originalQuestions.isEmpty()){
             XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
             parser.parseFileAndSaveToDatabase();
         }
-                
+             
         Scanner s = new Scanner(System.in);
         while (true) {
 	        String question = s.nextLine();
