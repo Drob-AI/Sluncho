@@ -29,16 +29,23 @@ import net.asteasolutions.cinusuidi.sluncho.questionparser.helpers.GateOffsetBou
  *
  */
 public class QuestionParser {
-	private static String GATE_APP_PATH;
+
+	private static String GATE_APP_PATH = System.getProperty("gate.astea.app.home");
 
 	private ConditionalSerialAnalyserController gatePipelineApp;
 
 	public void init() throws PersistenceException, ResourceInstantiationException, IOException, URISyntaxException {
-                GATE_APP_PATH = System.getProperty("gate.astea.app.home") + "/application.xgapp";
-		if (gatePipelineApp == null) {
-			gatePipelineApp = (ConditionalSerialAnalyserController)
+               
+            if(GATE_APP_PATH == null){
+                GATE_APP_PATH = System.getProperty("gate.astea.app.home");
+            }
+            
+            GATE_APP_PATH = GATE_APP_PATH + "/application.xgapp";
+            
+            if (gatePipelineApp == null) {
+                gatePipelineApp = (ConditionalSerialAnalyserController)
 					PersistenceManager.loadObjectFromFile(new File(GATE_APP_PATH));
-		}
+            }
 	}
 
 	public Query parse(String question) throws QuestionParserException {

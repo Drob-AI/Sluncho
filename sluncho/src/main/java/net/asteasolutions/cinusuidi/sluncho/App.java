@@ -17,9 +17,12 @@ import org.springframework.context.annotation.Configuration;
 import net.asteasolutions.cinusuidi.sluncho.data.FileSystemDocumentRepository;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.HtmlDocumentParser;
+import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QuestionParser;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 import net.asteasolutions.cinusuidi.sluncho.utils.ThreeGramProbabilityRepo;
+import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
+import org.bson.Document;
 
 /**
  * Hello world!
@@ -32,10 +35,7 @@ public class App
 {
     public static QuestionParser questionParser = new QuestionParser();
     public static void main(String args[]) throws IOException, URISyntaxException, GateException, QuestionParserException {
-//      Ensure the following startup parameters are set for java VM (with -D options):
-//      -Dgate.home=<absolute path to gate>
-//      -Dwordnet.database.dir=<absolute path to wordnet database>
-//      -Dgate.astea.app.home=<absolute project path>/resources/gate
+    	BeforeStartConfig.configSystemProperties();
 
         //fetch data and train name entity corrector index
 
@@ -56,16 +56,30 @@ public class App
 
         //calculates probability for 3-grams
         ThreeGramProbabilityRepo.loadProbability();
+         
+        //saves information from xml file to the database
+        //change the file location
+        String xmlFilePath = "/home/marmot/Downloads/SEMEVAL/SEMEVAL/semeval2016-task3-cqa-ql-traindev-v3.2/v3.2/dev/";
+        String xmlFileName = "SemEval2016-Task3-CQA-QL-dev-with-multiline.xml";
 
-        Scanner s = new Scanner(System.in);
-        String question = s.nextLine();
-        String answer;
-        try {
-            answer = Bot.getAnswer(question);
-            System.out.println(answer);
-        } catch (QuestionParserException e) {
-        // TODO Auto-generated catch block
+        MongoDBFacade mongoConnection = new MongoDBFacade();
+        Document xmlDocumentInDatabase = mongoConnection.getXmlDocument(xmlFileName);              
+        if(xmlDocumentInDatabase == null){
+            XmlParse parser = new XmlParse(xmlFilePath, xmlFileName);
+            parser.parseFileAndSaveToDatabase();
         }
-        s.close();
+                
+        Scanner s = new Scanner(System.in);
+        while (true) {
+	        String question = s.nextLine();
+	        String answer;
+	        try {
+	            answer = Bot.getAnswer(question);
+	            System.out.println(answer);
+	        } catch (QuestionParserException e) {
+	        // TODO Auto-generated catch block
+	        }
+        }
+//        s.close();
     }
 }
