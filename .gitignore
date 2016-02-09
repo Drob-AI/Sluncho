@@ -8,6 +8,7 @@ sluncho/.settings*
 sluncho/target
 RemoteSystemsTempFiles/
 sluncho/.recommenders/
+sluncho/bin
 .recommenders/
 *.cfe
 *.cfs

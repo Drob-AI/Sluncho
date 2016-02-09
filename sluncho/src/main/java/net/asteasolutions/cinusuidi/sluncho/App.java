@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.Scanner;
+
+import net.asteasolutions.cinusuidi.sluncho.BeforeStartConfig;
 import net.asteasolutions.cinusuidi.sluncho.bot.Bot;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -59,13 +61,11 @@ public class App
          
         //saves information from xml file to the database
         //change the file location
-        String xmlFilePath = "/home/marmot/Downloads/SEMEVAL/SEMEVAL/semeval2016-task3-cqa-ql-traindev-v3.2/v3.2/dev/";
-        String xmlFileName = "SemEval2016-Task3-CQA-QL-dev-with-multiline.xml";
 
         MongoDBFacade mongoConnection = new MongoDBFacade();
-        Document xmlDocumentInDatabase = mongoConnection.getXmlDocument(xmlFileName);              
+        Document xmlDocumentInDatabase = mongoConnection.getXmlDocument(System.getProperty("dataPath"));              
         if(xmlDocumentInDatabase == null){
-            XmlParse parser = new XmlParse(xmlFilePath, xmlFileName);
+            XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
             parser.parseFileAndSaveToDatabase();
         }
                 
