@@ -33,6 +33,8 @@ import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QuestionParser;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 import net.asteasolutions.cinusuidi.sluncho.utils.ThreeGramProbabilityRepo;
+import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
+import org.bson.Document;
 
 /**
  * Hello world!
@@ -45,11 +47,11 @@ public class App
 {
 	public static QuestionParser questionParser = new QuestionParser();
 	public static void main(String args[]) throws IOException, URISyntaxException, GateException, QuestionParserException {
-		Out.prln(System.getProperty("gate.home", "/home/hary/GATE_Developer_8.1"));
-		System.setProperty("wordnet.database.dir", "/home/hary/D/Downloads/WordNet-3.0/dict");
-		System.setProperty("gate.astea.app.home", "/home/hary/GATE_Developer_8.1/");
+		Out.prln(System.getProperty("gate.home", "/home/marmot/GATE_Developer_8.1"));
+		System.setProperty("wordnet.database.dir", "/home/marmot/Downloads/WordNet-3.0/dict");
+		System.setProperty("gate.astea.app.home", "/home/marmot/Downloads/sluncho/resources/gate");
 		Properties props = System.getProperties();
-		props.setProperty("gate.home", "/home/hary/GATE_Developer_8.1");
+		props.setProperty("gate.home", "/home/marmot/GATE_Developer_8.1");
         
 		//fetch data and train name entity corrector index
 		
@@ -70,6 +72,18 @@ public class App
 		
 		//calculates probability for 3-grams
 		ThreeGramProbabilityRepo.loadProbability();
+                
+                //saves information from xml file to the database
+                //change the file location
+                String xmlFilePath = "/home/marmot/Downloads/SEMEVAL/SEMEVAL/semeval2016-task3-cqa-ql-traindev-v3.2/v3.2/dev/";
+                String xmlFileName = "SemEval2016-Task3-CQA-QL-dev-with-multiline.xml";
+                
+                MongoDBFacade mongoConnection = new MongoDBFacade();
+                Document xmlDocumentInDatabase = mongoConnection.getXmlDocument(xmlFileName);              
+                if(xmlDocumentInDatabase == null){
+                    XmlParse parser = new XmlParse(xmlFilePath, xmlFileName);
+                    parser.parseFileAndSaveToDatabase();
+                }
 		
 		SpringApplication.run(App.class, args);
 	}
