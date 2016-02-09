@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.Block;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
@@ -16,13 +17,17 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
+import java.util.List;
+import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 public class MongoDBFacade {
+
     private MongoClient mongoClient;
     private MongoDatabase slunchoDB;
+
     public MongoDBFacade() {
         mongoClient = new MongoClient("localhost", 27017);
-        slunchoDB = mongoClient.getDatabase("sluncho");      
+        slunchoDB = mongoClient.getDatabase("sluncho");
     }
 
     public ArrayList<Document> getAllDocIds() {
@@ -58,13 +63,12 @@ public class MongoDBFacade {
         qaCollection.insertOne(newQuestion);
     }
 
-    public void createXmlDocument(Map<String, Object> documentMap) {
+    public void createXmlDocument(Question question) {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
 
-        Document newQuestion = new Document(documentMap);
-        qaCollection.insertOne(newQuestion);
+        qaCollection.insertOne(question.toJSON());
     }
-    
+
     public Document getXmlDocument(String id) {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
         BasicDBObject query = new BasicDBObject();
@@ -72,11 +76,48 @@ public class MongoDBFacade {
         Document result = qaCollection.find(query).first();
         return result;
     }
-    
-    public FindIterable<Document> getAllXmlDocuments() {
+
+    public List<Question> getAllOriginalQuestions() {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
 
-        FindIterable<Document> result = qaCollection.find();
-        return result;
+        BasicDBObject query = new BasicDBObject();
+        query.put("isOriginalQuestion", 0);
+        FindIterable<Document> result = qaCollection.find(query);
+        
+        final List<Question> allOriginalQuesions = new ArrayList<>();
+        result.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                
+                String groupId = (String) document.get("groupId");
+                String body = (String) document.get("body");
+                Question question = new Question((byte)0, groupId, body);
+                allOriginalQuesions.add(question);
+            }
+        });
+        return allOriginalQuesions;
+    }
+    
+    public List<Question> getAllRelevantQuestions(String groupId) {
+        MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
+        
+        BasicDBObject query = new BasicDBObject();
+        query.put("isOriginalQuestion", 1);
+        query.put("groupId", groupId);
+        FindIterable<Document> result = qaCollection.find(query);
+        
+        final List<Question> allRelevantQuesions = new ArrayList<>();
+        result.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                
+                String groupId = (String) document.get("groupId");
+                String body = (String) document.get("body");
+                String isRelevant = (String) document.get("isRelevantToOriginalQuestion");
+                Question question = new Question((byte)1, groupId, body, isRelevant);
+                allRelevantQuesions.add(question);
+            }
+        });
+        return allRelevantQuesions;
     }
 }
