@@ -64,16 +64,15 @@ public class App
          
         //saves information from xml file to the database
         //change the file location
-
-        MongoDBFacade mongoConnection = new MongoDBFacade();
-        List<Question> originalQuestions = mongoConnection.getAllOriginalQuestions();              
-        if(originalQuestions.isEmpty()){
+        QuestionRepository.extractOriginalQuestions();
+        if(QuestionRepository.originalQuestions.isEmpty()){
             XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
             parser.parseFileAndSaveToDatabase();
-            originalQuestions = mongoConnection.getAllOriginalQuestions(); 
-        } 
-        QuestionRepository.setOriginalQuestions(originalQuestions);
+            QuestionRepository.extractOriginalQuestions();
+        }
         
+        QuestionRepository.extractAllQuestions();
+        QuestionRepository.extractAllLabels();
         Doc2VecGroupClassifier.train();   
  		
         Scanner s = new Scanner(System.in);

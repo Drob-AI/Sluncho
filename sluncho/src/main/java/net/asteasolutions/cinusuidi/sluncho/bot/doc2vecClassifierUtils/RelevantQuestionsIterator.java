@@ -24,32 +24,14 @@ public class RelevantQuestionsIterator implements LabelAwareIterator {
 	 	public void setQuestions(List<Question> questions) {
 	 		this.questions = questions;
 	 	}
+	 	
+	 	public void setLables() {
+	 		
+	 	}
+	 	
 	 	public RelevantQuestionsIterator() {
-	 		if(questions.size() == 0 ) {
-		 		MongoDBFacade mongoConnection = new MongoDBFacade();
-		 		if ( QuestionRepository.originalQuestions == null) {
-		 	        List<Question> originalQuestions = mongoConnection.getAllOriginalQuestions();
-		 			QuestionRepository.setOriginalQuestions(originalQuestions);
-		 		}
-		 		
-		 		for(Question question: QuestionRepository.originalQuestions) {
-		 			this.questions.add(question);
-	 	        	List<Question> relQuestions = mongoConnection.getAllRelevantQuestions(question.getGroupId());
-	 	        	for(Question relQuestion: relQuestions) {
-	 	        		if(!relQuestion.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {
-	 	        			this.questions.add(relQuestion);
-	 	        		}
-	 	        	}
-	 	        }
-		 		
-		 		for(Question question: this.questions) {
-		 			System.err.println(question.getIsRelevantToOriginalQuestion());
-		 		}
-	//	 		
-		 		for(Question question: QuestionRepository.originalQuestions) {
-		 			labels.add(question.getGroupId());
-		 		}
-	 		}
+	 		questions = QuestionRepository.allQuestions;
+	 		labels = QuestionRepository.labels;
 		}
 	 	
 	    @Override
