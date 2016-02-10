@@ -1,4 +1,4 @@
-package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
+package net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils;
 
 import lombok.NonNull;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author raver119@gmail.com
  */
-public class MeansBuilderExample {
+public class MeansBuilder {
     private VocabCache<VocabWord> vocabCache;
     private InMemoryLookupTable<VocabWord> lookupTable;
     private TokenizerFactory tokenizerFactory;
 
-    public MeansBuilderExample(@NonNull InMemoryLookupTable<VocabWord> lookupTable, @NonNull TokenizerFactory tokenizerFactory) {
+    public MeansBuilder(@NonNull InMemoryLookupTable<VocabWord> lookupTable, @NonNull TokenizerFactory tokenizerFactory) {
         this.lookupTable = lookupTable;
         this.vocabCache = lookupTable.getVocab();
         this.tokenizerFactory = tokenizerFactory;

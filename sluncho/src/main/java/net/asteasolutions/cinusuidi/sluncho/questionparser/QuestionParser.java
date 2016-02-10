@@ -52,6 +52,10 @@ public class QuestionParser {
 		Corpus corpus;
 		Document document;
 		Query query = new Query();
+
+        query.originalText = question;
+        query.extendedOriginalText = question;
+        
 		try {
 			corpus = Factory.newCorpus("GATE Corpus");
 			document = Factory.newDocument(question);
@@ -111,8 +115,7 @@ public class QuestionParser {
 
 		query.allNPTokens = npTokensStripped;
 		query.orderedTokens = result;
-                query.posTokens = basicResult;
-
+        query.posTokens = basicResult;
 		return query;
 	}
 

@@ -81,7 +81,7 @@ public class MongoDBFacade {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
 
         BasicDBObject query = new BasicDBObject();
-        query.put("isOriginalQuestion", 0);
+        query.put("isOriginalQuestion", Question.ORIGINAL_QUESTION);
         FindIterable<Document> result = qaCollection.find(query);
         
         final List<Question> allOriginalQuesions = new ArrayList<>();
@@ -102,7 +102,7 @@ public class MongoDBFacade {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
         
         BasicDBObject query = new BasicDBObject();
-        query.put("isOriginalQuestion", 1);
+        query.put("isOriginalQuestion", Question.RELEVANT_QUESTION);
         query.put("groupId", groupId);
         FindIterable<Document> result = qaCollection.find(query);
         

@@ -29,9 +29,9 @@ import org.dom4j.io.SAXReader;
 
 public class XmlParse {
     
-    private static final byte ORIGINAL_QUESTION = 0;
+    private static final byte ORIGINAL_QUESTION = 1;
     
-    private static final byte RELEVANT_QUESTION = 1;
+    private static final byte RELEVANT_QUESTION = 0;
 
     private final String filePath;
 

@@ -7,6 +7,8 @@ import net.asteasolutions.cinusuidi.sluncho.questionparser.QueryToken;
 
 public class Query {
 	
+	public String originalText;
+	public String extendedOriginalText;
     //Annotations
     //Pos tagged token, they have category annotation
     public List<QueryToken> posTokens;

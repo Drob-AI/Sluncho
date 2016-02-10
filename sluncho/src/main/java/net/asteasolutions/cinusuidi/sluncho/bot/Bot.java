@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.asteasolutions.cinusuidi.sluncho.App;
 import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.Doc2VecGroupClassifier;
 import net.asteasolutions.cinusuidi.sluncho.data.FileSystemDocumentRepository;
 import net.asteasolutions.cinusuidi.sluncho.data.IDocumentRepository;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
@@ -31,6 +32,11 @@ import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionPar
 public class Bot {
 	public static String getAnswer(String question) throws QuestionParserException {
             Query query = App.questionParser.parse(question);
+            
+            // TODO remove from here. only for testing:
+            Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
+            System.out.println(classifyer.classifyToGroup(query).getFirst());
+            
             QueryResult result = QueryAnswerer.getQueryResult(query);
             if(result != null) {
                 return result.content();

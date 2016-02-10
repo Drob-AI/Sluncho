@@ -12,12 +12,14 @@ import java.util.Scanner;
 
 import net.asteasolutions.cinusuidi.sluncho.BeforeStartConfig;
 import net.asteasolutions.cinusuidi.sluncho.bot.Bot;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.Doc2VecGroupClassifier;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import net.asteasolutions.cinusuidi.sluncho.data.FileSystemDocumentRepository;
+import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.HtmlDocumentParser;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
@@ -68,8 +70,12 @@ public class App
         if(originalQuestions.isEmpty()){
             XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
             parser.parseFileAndSaveToDatabase();
-        }
-             
+            originalQuestions = mongoConnection.getAllOriginalQuestions(); 
+        } 
+        QuestionRepository.setOriginalQuestions(originalQuestions);
+        
+        Doc2VecGroupClassifier.train();   
+ 		
         Scanner s = new Scanner(System.in);
         while (true) {
 	        String question = s.nextLine();

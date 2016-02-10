@@ -17,12 +17,12 @@ import org.bson.Document;
  */
 public class Question {
 
-    private static final byte ORIGINAL_QUESTION = 0;
+    public static final byte ORIGINAL_QUESTION = 1;
 
-    private static final byte RELEVANT_QUESTION = 1;
+    public static final byte RELEVANT_QUESTION = 0;
 
-    //0 - original question
-    //1 - relevant question
+    //1 - original question
+    //0 - relevant question
     //2 - comment (not implemented)
     private byte isOriginalQuestion;
 
@@ -52,7 +52,7 @@ public class Question {
         questionMap.put("groupId", groupId);
         questionMap.put("isOriginalQuestion", isOriginalQuestion);
         questionMap.put("body", body);
-        if (isOriginalQuestion != 0) {
+        if (isOriginalQuestion != ORIGINAL_QUESTION) {
             questionMap.put("isRelevantToOriginalQuestion", isRelevantToOriginalQuestion);
         }
         return new Document(questionMap);
