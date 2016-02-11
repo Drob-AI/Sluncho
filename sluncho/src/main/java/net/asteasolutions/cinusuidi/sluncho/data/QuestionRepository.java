@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
@@ -13,11 +14,15 @@ public class QuestionRepository {
 	public static List<Question> allQuestions =  new ArrayList<>();
 	public static List<String> labels = new ArrayList<>();
 	
-	public static HashMap<String, List<Question>> oneOutTrainingSets = new HashMap<>();
-	public static HashMap<String, Question> oneOutTestingSet = new HashMap<>();
+	//needed for the full testing process
+	public static HashMap<String, List<Question>> oneOutFullTrainingSets = new HashMap<>();
+	public static HashMap<String, Question> oneOutFullTestingSet = new HashMap<>();
+	
+	// needed for the random testing process
+	public static List<Question> oneOutRandomTrainingSet = new ArrayList<>();
+	public static List<Question> oneOutRandomTestingSet = new ArrayList<>();
 	
 	private static MongoDBFacade mongoConnection = new MongoDBFacade();
-	
 	public static void setOriginalQuestions(List<Question> originalQ) {
 		originalQuestions = originalQ;
 	}
@@ -31,6 +36,7 @@ public class QuestionRepository {
 	public static void extractAllQuestions() {		
  		if ( QuestionRepository.originalQuestions == null) {
  			extractOriginalQuestions();
+ 			extractAllLabels();
  		}
  		for(Question question: QuestionRepository.originalQuestions) {
  			allQuestions.add(question);
@@ -53,7 +59,7 @@ public class QuestionRepository {
  		}
 	}
 	
-	public static void extractOneOutSets() {
+	public static void extractAllOneOutSets() {
 		if ( QuestionRepository.originalQuestions == null) {
  			extractOriginalQuestions();
  		}
@@ -62,6 +68,8 @@ public class QuestionRepository {
 		int maxSize = 0;
  		for(Question question: QuestionRepository.originalQuestions) {
         	List<Question> relQuestions = new ArrayList<>();
+        	relQuestions.add(question);
+        	
     		for(Question q: mongoConnection.getAllRelevantQuestions(question.getGroupId())) {
     			if(!q.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {
     				relQuestions.add(q);
@@ -80,10 +88,48 @@ public class QuestionRepository {
 		    List<Question> groupedQuestions = entry.getValue();
 		    for(int j = 0; j < groupedQuestions.size(); j++) {
 		    	List<Question> trainSet = setWithout(allQuestionsGrouped, label, j);
-		    	oneOutTrainingSets.put(label + new Integer(j).toString(), trainSet);
+		    	oneOutFullTrainingSets.put(label + new Integer(j).toString(), trainSet);
 		    }
 		    
 		}
+	}
+	
+	public static void extractRandomOneOutSet() {
+		if ( QuestionRepository.originalQuestions == null) {
+ 			extractOriginalQuestions();
+ 			extractAllQuestions();
+ 		}
+		
+		HashMap<String, List<Question>> allQuestionsGrouped = new HashMap<>();
+		int maxSize = 0;
+ 		for(Question question: QuestionRepository.originalQuestions) {
+        	List<Question> relQuestions = new ArrayList<>();
+        	relQuestions.add(question);
+        	
+    		for(Question q: mongoConnection.getAllRelevantQuestions(question.getGroupId())) {
+    			if(!q.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {
+    				relQuestions.add(q);
+    			}
+    		}
+        	
+        	if(maxSize < relQuestions.size()) {
+        		maxSize = relQuestions.size();
+        	}
+        	
+ 			allQuestionsGrouped.put(question.getGroupId(),relQuestions);
+ 		}
+ 		
+		for (Map.Entry<String, List<Question>> entry : allQuestionsGrouped.entrySet()) {
+			String label = entry.getKey();
+		    List<Question> groupedQuestions = entry.getValue();
+		    
+//		    Integer j = ThreadLocalRandom.current().nextInt(0, groupedQuestions.size());
+		    Integer j = 0;
+		    oneOutRandomTestingSet.add(groupedQuestions.get(j));
+		}
+		
+		oneOutRandomTrainingSet.addAll(allQuestions);
+		oneOutRandomTrainingSet.removeAll(oneOutRandomTestingSet);
 	}
 	
 	private static List<Question> setWithout(HashMap<String, List<Question>> allQuestionsGrouped,String key, Integer index) { 
@@ -93,7 +139,7 @@ public class QuestionRepository {
 		    List<Question> groupedQuestions = entry.getValue();
 		    for(int j = 0; j < groupedQuestions.size(); j++) {
 		    	if(key.equals(label) && j == index) {
-		    		oneOutTestingSet.put(key + index.toString(), groupedQuestions.get(j));
+		    		oneOutFullTestingSet.put(key + index.toString(), groupedQuestions.get(j));
 		    	} else {
 		    		result.add(groupedQuestions.get(j));
 		    	}
@@ -103,21 +149,10 @@ public class QuestionRepository {
 		return result;
 	}
 	
-	public static void main(String args[]){
-		extractOneOutSets();
-		System.out.println("-------------------_");
-		System.out.println(oneOutTrainingSets.size());
-		int counter = 0;
-		for (Map.Entry<String, List<Question>> entry : oneOutTrainingSets.entrySet()) {
-			String label = entry.getKey();
-		    List<Question> groupedQuestions = entry.getValue();
-		    for(int j = 0; j < groupedQuestions.size(); j++) {
-		    	if(groupedQuestions.get(j).equals(oneOutTestingSet.get("Q2960"))) {
-		    		System.out.println(true);
-		    		counter++;
-		    	}
-		    }
-		}
-		System.out.println(counter);
-	}
+//	public static void main(String args[]){
+//		extractRandomOneOutSet();
+//		System.out.println(oneOutRandomTrainingSet.size());
+//		oneOutRandomTrainingSet.removeAll(oneOutRandomTestingSet);
+//		System.out.println(oneOutRandomTrainingSet.size());
+//	}
 }

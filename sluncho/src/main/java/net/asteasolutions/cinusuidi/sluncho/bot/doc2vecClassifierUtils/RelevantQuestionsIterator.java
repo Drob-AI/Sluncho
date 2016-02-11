@@ -21,13 +21,10 @@ public class RelevantQuestionsIterator implements LabelAwareIterator {
 	 	protected List<String> labels = new ArrayList<>();
 	 	protected Integer position = new Integer(0);
 	 	
-	 	public void setQuestions(List<Question> questions) {
-	 		this.questions = questions;
-	 	}
-	 	
-	 	public void setLables() {
-	 		
-	 	}
+	 	public RelevantQuestionsIterator(List<Question> allQ) {
+	 		questions = allQ;
+	 		labels = QuestionRepository.labels;
+		}
 	 	
 	 	public RelevantQuestionsIterator() {
 	 		questions = QuestionRepository.allQuestions;

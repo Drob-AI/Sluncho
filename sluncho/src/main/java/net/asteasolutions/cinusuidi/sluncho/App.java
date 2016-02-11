@@ -24,6 +24,7 @@ import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.HtmlDocumentParser;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
+import net.asteasolutions.cinusuidi.sluncho.oneOutValidation.OneOutValidation;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QuestionParser;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 import net.asteasolutions.cinusuidi.sluncho.utils.ThreeGramProbabilityRepo;
@@ -73,6 +74,11 @@ public class App
         
         QuestionRepository.extractAllQuestions();
         QuestionRepository.extractAllLabels();
+        OneOutValidation testUnit = new OneOutValidation();
+        
+        testUnit.runDoc2vecClassifierrRandomTest();
+//        testUnit.runDoc2vecClassifierFullTest();
+        Doc2VecGroupClassifier.reset();
         Doc2VecGroupClassifier.train();   
  		
         Scanner s = new Scanner(System.in);

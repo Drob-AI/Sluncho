@@ -20,6 +20,7 @@ import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.LabelSeeker;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.MeansBuilder;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.RelevantQuestionsIterator;
+import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 import java.util.List;
 
@@ -41,20 +42,25 @@ public class Doc2VecGroupClassifier {
     public static TokenizerFactory tokenizer;
     public static RelevantQuestionsIterator iterator;
     
+    private final static double LEARNING_RATE = 0.035;
+    private final static double MIN_LEARNING_RATE = 0.01;
+    private final static int BATCH_SIZE = 1000;
+    private final static int EPOCHS = 20;
+    private final static boolean WORDS_VECTORS = true;
     public static void  train() {
     	iterator = new RelevantQuestionsIterator();
     	
         tokenizer = new DefaultTokenizerFactory();
         tokenizer.setTokenPreProcessor(new CommonPreprocessor());
-
+        
         // ParagraphVectors training configuration
         paragraphVectors = new ParagraphVectors.Builder()
-                .learningRate(0.025)
-                .minLearningRate(0.001)
-                .batchSize(1000)
-                .epochs(20)
+                .learningRate(LEARNING_RATE)	
+                .minLearningRate(MIN_LEARNING_RATE)
+                .batchSize(BATCH_SIZE)
+                .epochs(EPOCHS)
                 .iterate(iterator)
-                .trainWordVectors(true)
+                .trainWordVectors(WORDS_VECTORS)
                 .tokenizerFactory(tokenizer)
                 .build();
 
@@ -62,12 +68,48 @@ public class Doc2VecGroupClassifier {
         paragraphVectors.fit();
     }
     
+    public static void  trainWithQuestions(List<Question> questions) {
+    	iterator = new RelevantQuestionsIterator(questions);
+    	
+        tokenizer = new DefaultTokenizerFactory();
+        tokenizer.setTokenPreProcessor(new CommonPreprocessor());
+
+        // ParagraphVectors training configuration
+        paragraphVectors = new ParagraphVectors.Builder()
+                .learningRate(LEARNING_RATE)
+                .minLearningRate(MIN_LEARNING_RATE)
+                .batchSize(BATCH_SIZE)
+                .epochs(EPOCHS)
+                .iterate(iterator)
+                .trainWordVectors(WORDS_VECTORS)
+                .tokenizerFactory(tokenizer)
+                .build();
+
+        // Start model training
+        paragraphVectors.fit();
+    }
+    
+    public static void reset() {
+    	paragraphVectors = null;
+    	tokenizer = null;
+    	iterator  = null;
+    }
     public Pair<String, Double> classifyToGroup(Query query) {
         MeansBuilder meansBuilder = new MeansBuilder((InMemoryLookupTable<VocabWord>) paragraphVectors.getLookupTable(), tokenizer);
         LabelSeeker seeker = new LabelSeeker(iterator.getLabelsSource().getLabels(), (InMemoryLookupTable<VocabWord>)  paragraphVectors.getLookupTable());
         
         LabelledDocument queryDoc = new LabelledDocument();
         queryDoc.setContent(query.originalText);
+        INDArray documentAsCentroid = meansBuilder.documentAsVector(queryDoc);
+		return seeker.getMaxScore(documentAsCentroid);
+    }
+    
+    public Pair<String, Double> classifyToGroup(Question query) {
+        MeansBuilder meansBuilder = new MeansBuilder((InMemoryLookupTable<VocabWord>) paragraphVectors.getLookupTable(), tokenizer);
+        LabelSeeker seeker = new LabelSeeker(iterator.getLabelsSource().getLabels(), (InMemoryLookupTable<VocabWord>)  paragraphVectors.getLookupTable());
+        
+        LabelledDocument queryDoc = new LabelledDocument();
+        queryDoc.setContent(query.getBody());
         INDArray documentAsCentroid = meansBuilder.documentAsVector(queryDoc);
 		return seeker.getMaxScore(documentAsCentroid);
     }
