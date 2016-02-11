@@ -27,8 +27,10 @@ public class RelevantQuestionsIterator implements LabelAwareIterator {
 		}
 	 	
 	 	public RelevantQuestionsIterator() {
-	 		questions = QuestionRepository.allQuestions;
-	 		labels = QuestionRepository.labels;
+                    QuestionRepository repo = QuestionRepository.Instance();
+                    
+                    questions = repo.allQuestions;
+                    labels = repo.labels;
 		}
 	 	
 	    @Override

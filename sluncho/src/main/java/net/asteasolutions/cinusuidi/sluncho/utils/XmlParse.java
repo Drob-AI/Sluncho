@@ -56,6 +56,7 @@ public class XmlParse {
             String commentId = comment.valueOf("@RELC_ID");
             if (relQuestionMap.isEmpty() || !relQuestionMap.containsKey(commentId)) {
                 Map<String, Object> relCommentInfo = new LinkedHashMap<>();
+
                 relCommentInfo.put("RelCBody", comment.selectSingleNode("RelCClean").getText());
                 relCommentInfo.put("IsRelevantToOrgQ", comment.valueOf("@RELC_RELEVANCE2ORGQ"));
                 relCommentInfo.put("IsRelevantToRelQ", comment.valueOf("@RELC_RELEVANCE2RELQ"));
@@ -71,8 +72,14 @@ public class XmlParse {
         Map<String, Object> relQuestionInfo = new LinkedHashMap<>();
         if (relQuestionMap.isEmpty() || !relQuestionMap.containsKey(relQId)) {
             relQuestionInfo.put("IsRelevant", relQuestion.valueOf("@RELQ_RELEVANCE2ORGQ"));
-            relQuestionInfo.put("RelQBody", relQuestion.valueOf("RelQClean"));
+            String question = relQuestion.valueOf("RelQClean");
+            String[] parts = question.split("//", -1);
+
+            System.out.println(question);
+            relQuestionInfo.put("RelQSubject", parts[0].trim());
+            relQuestionInfo.put("RelQBody", parts[1].trim());
             relQuestionInfo.put("RelComment", new LinkedHashMap<String, Object>());
+            relQuestionInfo.put("RelQId", relQId);
             relQuestionMap.put(relQId, relQuestionInfo);
         }
         return relQuestionInfo;
@@ -80,8 +87,12 @@ public class XmlParse {
 
     private Map<String, Object> setOriginalQProperties(Node originalQuestion) {
         Map<String, Object> orgQuestionInfo = new LinkedHashMap<>();
-
-        orgQuestionInfo.put("OrgQBody", originalQuestion.selectSingleNode("OrgQClean").getText());
+        
+        String question = originalQuestion.selectSingleNode("OrgQClean").getText();
+        String[] parts = question.split("//", -1);
+        
+        orgQuestionInfo.put("OrgQSubject", parts[0].trim());
+        orgQuestionInfo.put("OrgQBody", parts[1].trim());
         orgQuestionInfo.put("RelQuestion", new LinkedHashMap<String, Object>());
         return orgQuestionInfo;
     }
@@ -125,15 +136,17 @@ public class XmlParse {
                 String id = entry.getKey();
                 Map<String, Object> orgQuestionInfo = (Map<String, Object>) entry.getValue();
 
-                Question originalQ = new Question(ORIGINAL_QUESTION, id, (String) orgQuestionInfo.get("OrgQBody"));
+                Question originalQ = new Question(id, ORIGINAL_QUESTION, id, (String) orgQuestionInfo.get("OrgQSubject"), (String) orgQuestionInfo.get("OrgQBody"));
                 mongoConnection.createXmlDocument(originalQ);
                 
                 Map<String, Object> relevantQ = (Map<String, Object>) orgQuestionInfo.get("RelQuestion");
                 for (Object relQValue : relevantQ.values()) {
                     Map<String, Object> relQuestionInfo = (Map<String, Object>) relQValue;
                     String body = (String) relQuestionInfo.get("RelQBody");
+                    String subject = (String) relQuestionInfo.get("RelQSubject");
                     String isRelevant = (String) relQuestionInfo.get("IsRelevant");
-                    Question relativeQ = new Question(RELEVANT_QUESTION, id, body, isRelevant);
+                    String relId = (String) relQuestionInfo.get("RelQId");
+                    Question relativeQ = new Question(relId, RELEVANT_QUESTION, id, subject, body, isRelevant);
                     mongoConnection.createXmlDocument(relativeQ);
                 }
             }
