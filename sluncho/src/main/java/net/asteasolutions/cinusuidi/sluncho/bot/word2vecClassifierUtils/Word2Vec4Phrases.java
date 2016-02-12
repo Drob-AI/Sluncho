@@ -1,12 +1,36 @@
 package net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils;
 
+import java.awt.image.LookupTable;
+
+import org.deeplearning4j.models.embeddings.WeightLookupTable;
+import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
+import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
+import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 public class Word2Vec4Phrases {
+	
+	private int VECTOR_LENGTH;
+    private double LEARNING_RATE;
+    private int ITERATIONS;
+    private int EPOCHS;
+    private int WIN_SIZE;
+    private int MIN_WORD_FREQ;
+    private long RANDOM_SEED;
+	
+	private SentenceIterator iter;
+	private TokenizerFactory t;
+	private InMemoryLookupCache cache;
+	private WeightLookupTable<VocabWord> table;
 	
 	public Word2Vec vec;
 	
@@ -18,36 +42,49 @@ public class Word2Vec4Phrases {
 		this.vec = vec;
 	}
 	
-	/*
-	public Word2Vec4Phrases(String filePath, 
-			int iterations, int epochs, 
+	public Word2Vec4Phrases(int iterations, int epochs, 
 			int vectorLength, int minWordFreq, 
-			int learningRate, int windowSize, 
+			double learningRate, int windowSize, 
 			long randomSeed) throws Exception {
 		
-		SentenceIterator iter = new BasicLineIterator(filePath);
-        TokenizerFactory t = new DefaultTokenizerFactory();
+		this.VECTOR_LENGTH = vectorLength;
+		this.LEARNING_RATE = learningRate;
+		this.ITERATIONS = iterations;
+		this.EPOCHS = epochs;
+		this.WIN_SIZE = windowSize;
+		this.MIN_WORD_FREQ = minWordFreq;
+		this.RANDOM_SEED = randomSeed;
+		
+		String filePath = "/home/dimiter/Downloads/SemEval2016-Task3-CQA-QL-train-part2-with-multiline.txt";
+        this.iter = new BasicLineIterator(filePath);
+		//this.iter = new RelevantQuestionsSentenceIterator();
+        this.t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
-        InMemoryLookupCache cache = new InMemoryLookupCache();
-        WeightLookupTable<VocabWord> table = new InMemoryLookupTable.Builder<VocabWord>()
-                .vectorLength(vectorLength)
+
+        // manual creation of VocabCache and WeightLookupTable usually isn't necessary
+        // but in this case we'll need them
+        this.cache = new InMemoryLookupCache();
+        this.table = new InMemoryLookupTable.Builder<VocabWord>()
+                .vectorLength(VECTOR_LENGTH)
                 .useAdaGrad(false)
                 .cache(cache)
-                .lr(learningRate).build();
+                .lr(LEARNING_RATE).build();
+        
         this.vec = new Word2Vec.Builder()
-                .minWordFrequency(minWordFreq)
-                .iterations(iterations)
-                .epochs(epochs)
-                .layerSize(vectorLength)
-                .seed(randomSeed)
+                .minWordFrequency(MIN_WORD_FREQ)
+                .iterations(ITERATIONS)
+                .epochs(EPOCHS)
+                .layerSize(VECTOR_LENGTH)
+                .seed(RANDOM_SEED)
+                .windowSize(WIN_SIZE)
                 .iterate(iter)
                 .tokenizerFactory(t)
                 .lookupTable(table)
                 .vocabCache(cache)
                 .build();
+
         vec.fit();
 	}
-	*/
 	
 	public double cosineSimilarityPhraseVec(String[] phrase1Words, String[] phrase2Words) {
 		INDArray phrase1Vector = calculatePhraseVecCentroid(phrase1Words);
