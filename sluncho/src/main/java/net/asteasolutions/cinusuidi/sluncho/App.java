@@ -22,6 +22,8 @@ import net.asteasolutions.cinusuidi.sluncho.data.FileSystemDocumentRepository;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.HtmlDocumentParser;
+import net.asteasolutions.cinusuidi.sluncho.documentIndex.IdentityDocumentParser;
+import net.asteasolutions.cinusuidi.sluncho.documentIndex.QuestionAnswer;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import net.asteasolutions.cinusuidi.sluncho.oneOutValidation.OneOutValidation;
@@ -49,38 +51,30 @@ public class App
         Gate.init();
         //initialize ANNIE and Standford parser
         questionParser.init();
-        //Create new document parser for html documents
-        HtmlDocumentParser htmlParser = new HtmlDocumentParser();
-
-        //Create new repository for reading document from file system
-        FileSystemDocumentRepository fsDocRepo = new FileSystemDocumentRepository();
-
-        //Create new indexer for parsed documents
-        DocumentIndexer fileIndexer = new DocumentIndexer(fsDocRepo, htmlParser);
-        fileIndexer.indexAll();
-        fileIndexer.close();
 
         //calculates probability for 3-grams
         ThreeGramProbabilityRepo.loadProbability();
          
         //saves information from xml file to the database
         //change the file location
-        QuestionRepository.extractOriginalQuestions();
-        if(QuestionRepository.originalQuestions.isEmpty()){
-            XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
-            parser.parseFileAndSaveToDatabase();
-            QuestionRepository.extractOriginalQuestions();
-        }
+                
+        //Create document using identity
+        IdentityDocumentParser idParser = new IdentityDocumentParser();
+
+        //Create new repository for reading document from file system
+        QuestionRepository repo = QuestionRepository.Instance();
         
-        QuestionRepository.extractAllQuestions();
-        QuestionRepository.extractAllLabels();
         OneOutValidation testUnit = new OneOutValidation();
-        
         testUnit.runDoc2vecClassifierrRandomTest();
-//        testUnit.runDoc2vecClassifierFullTest();
+//      testUnit.runDoc2vecClassifierFullTest();
         Doc2VecGroupClassifier.reset();
         Doc2VecGroupClassifier.train();   
- 		
+      
+        //Create new indexer for parsed documents
+        DocumentIndexer questionIndexer = new DocumentIndexer(repo, idParser);
+        questionIndexer.indexAll();
+        questionIndexer.close();
+
         Scanner s = new Scanner(System.in);
         while (true) {
 	        String question = s.nextLine();

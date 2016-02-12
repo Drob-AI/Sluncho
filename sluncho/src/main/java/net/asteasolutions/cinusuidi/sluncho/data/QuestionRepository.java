@@ -1,5 +1,6 @@
 package net.asteasolutions.cinusuidi.sluncho.data;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,37 +9,63 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
+import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
 
-public class QuestionRepository {
-	public static List<Question> originalQuestions;
-	public static List<Question> allQuestions =  new ArrayList<>();
-	public static List<String> labels = new ArrayList<>();
+public class QuestionRepository implements IDocumentRepository {
+    private static QuestionRepository instance;
+    
+    private QuestionRepository() {
+        this.mongoConnection = new MongoDBFacade();
+        extractOriginalQuestions();
+        
+        if(originalQuestions.isEmpty()){
+            XmlParse parser = new XmlParse(System.getProperty("dataPath"), System.getProperty("dataFileName"));
+            parser.parseFileAndSaveToDatabase();
+            extractOriginalQuestions();
+        }
+        
+        extractAllQuestions();
+        extractAllLabels();
+    }
+    
+    public static QuestionRepository Instance() {
+        if(instance == null) {
+            instance = new QuestionRepository();
+        }
+        return instance;
+    }
+    
+    public List<Question> originalQuestions;
+	public List<Question> allQuestions =  new ArrayList<>();
+	public List<String> labels = new ArrayList<>();
 	
 	//needed for the full testing process
-	public static HashMap<String, List<Question>> oneOutFullTrainingSets = new HashMap<>();
-	public static HashMap<String, Question> oneOutFullTestingSet = new HashMap<>();
+	public HashMap<String, List<Question>> oneOutFullTrainingSets = new HashMap<>();
+	public HashMap<String, Question> oneOutFullTestingSet = new HashMap<>();
 	
 	// needed for the random testing process
-	public static List<Question> oneOutRandomTrainingSet = new ArrayList<>();
-	public static List<Question> oneOutRandomTestingSet = new ArrayList<>();
+	public List<Question> oneOutRandomTrainingSet = new ArrayList<>();
+	public List<Question> oneOutRandomTestingSet = new ArrayList<>();
 	
-	private static MongoDBFacade mongoConnection = new MongoDBFacade();
-	public static void setOriginalQuestions(List<Question> originalQ) {
+	private MongoDBFacade mongoConnection = new MongoDBFacade();
+	
+	public void setOriginalQuestions(List<Question> originalQ) {
 		originalQuestions = originalQ;
 	}
 	
 	
-	public static void extractOriginalQuestions(){
+	public void extractOriginalQuestions(){
 		originalQuestions = mongoConnection.getAllOriginalQuestions();
-		QuestionRepository.setOriginalQuestions(originalQuestions);
+		this.setOriginalQuestions(originalQuestions);
 	}
 	
-	public static void extractAllQuestions() {		
- 		if ( QuestionRepository.originalQuestions == null) {
- 			extractOriginalQuestions();
- 			extractAllLabels();
+	public void extractAllQuestions() {		
+ 		if ( this.originalQuestions == null) {
+ 			this.extractOriginalQuestions();
+ 			this.extractAllLabels();
  		}
- 		for(Question question: QuestionRepository.originalQuestions) {
+ 		
+ 		for(Question question: this.originalQuestions) {
  			allQuestions.add(question);
         	List<Question> relQuestions = mongoConnection.getAllRelevantQuestions(question.getGroupId());
         	for(Question relQuestion: relQuestions) {
@@ -49,24 +76,24 @@ public class QuestionRepository {
         }
 	}
 	
-	public static void extractAllLabels() {
-		if ( QuestionRepository.originalQuestions == null) {
+	public void extractAllLabels() {
+		if ( this.originalQuestions == null) {
  			extractOriginalQuestions();
  		}
 		
-		for(Question question: QuestionRepository.originalQuestions) {
+		for(Question question: this.originalQuestions) {
  			labels.add(question.getGroupId());
  		}
 	}
 	
-	public static void extractAllOneOutSets() {
-		if ( QuestionRepository.originalQuestions == null) {
- 			extractOriginalQuestions();
+	public void extractAllOneOutSets() {
+		if ( this.originalQuestions == null) {
+ 			this.extractOriginalQuestions();
  		}
 		
 		HashMap<String, List<Question>> allQuestionsGrouped = new HashMap<>();
 		int maxSize = 0;
- 		for(Question question: QuestionRepository.originalQuestions) {
+ 		for(Question question: this.originalQuestions) {
         	List<Question> relQuestions = new ArrayList<>();
         	relQuestions.add(question);
         	
@@ -94,15 +121,15 @@ public class QuestionRepository {
 		}
 	}
 	
-	public static void extractRandomOneOutSet() {
-		if ( QuestionRepository.originalQuestions == null) {
+	public void extractRandomOneOutSet() {
+		if ( this.originalQuestions == null) {
  			extractOriginalQuestions();
  			extractAllQuestions();
  		}
 		
 		HashMap<String, List<Question>> allQuestionsGrouped = new HashMap<>();
 		int maxSize = 0;
- 		for(Question question: QuestionRepository.originalQuestions) {
+ 		for(Question question: this.originalQuestions) {
         	List<Question> relQuestions = new ArrayList<>();
         	relQuestions.add(question);
         	
@@ -132,7 +159,7 @@ public class QuestionRepository {
 		oneOutRandomTrainingSet.removeAll(oneOutRandomTestingSet);
 	}
 	
-	private static List<Question> setWithout(HashMap<String, List<Question>> allQuestionsGrouped,String key, Integer index) { 
+	private List<Question> setWithout(HashMap<String, List<Question>> allQuestionsGrouped,String key, Integer index) { 
 		List<Question> result = new ArrayList<>();
 		for (Map.Entry<String, List<Question>> entry : allQuestionsGrouped.entrySet()) {
 			String label = entry.getKey();
@@ -149,10 +176,25 @@ public class QuestionRepository {
 		return result;
 	}
 	
-//	public static void main(String args[]){
-//		extractRandomOneOutSet();
-//		System.out.println(oneOutRandomTrainingSet.size());
-//		oneOutRandomTrainingSet.removeAll(oneOutRandomTestingSet);
-//		System.out.println(oneOutRandomTrainingSet.size());
-//	}
+    @Override
+    public String[] getDocumentsRefs() throws IOException {
+        ArrayList<String> refs = new ArrayList<String>() {};
+        for (Question q: allQuestions) {
+            refs.add(q.getQuestionId());
+        }
+        return refs.toArray(new String[refs.size()]);
+    }
+
+    @Override
+    public IndexableDocument getDocument(String ref) throws IOException {
+        for (Question q: allQuestions) {
+            if(q.getQuestionId().equals(ref)) {
+                IndexableDocument result = new IndexableDocument();
+                result.title = q.getSubject();
+                result.content = q.getBody();
+                return result;
+            }
+        }
+        return null;
+    }
 }

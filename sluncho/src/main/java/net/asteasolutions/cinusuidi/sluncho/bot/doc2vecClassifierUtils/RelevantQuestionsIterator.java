@@ -23,12 +23,13 @@ public class RelevantQuestionsIterator implements LabelAwareIterator {
 	 	
 	 	public RelevantQuestionsIterator(List<Question> allQ) {
 	 		questions = allQ;
-	 		labels = QuestionRepository.labels;
+	 		labels = QuestionRepository.Instance().labels;
 		}
 	 	
 	 	public RelevantQuestionsIterator() {
-	 		questions = QuestionRepository.allQuestions;
-	 		labels = QuestionRepository.labels;
+                    QuestionRepository repo = QuestionRepository.Instance();
+                    questions = repo.allQuestions;
+                    labels = repo.labels;
 		}
 	 	
 	    @Override

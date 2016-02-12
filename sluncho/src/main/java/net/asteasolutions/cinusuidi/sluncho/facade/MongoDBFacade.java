@@ -88,10 +88,11 @@ public class MongoDBFacade {
         result.forEach(new Block<Document>() {
             @Override
             public void apply(final Document document) {
-                
+                String questionId = (String) document.get("questionId"); 
                 String groupId = (String) document.get("groupId");
+                String subject = (String) document.get("subject");
                 String body = (String) document.get("body");
-                Question question = new Question((byte)0, groupId, body);
+                Question question = new Question(questionId, (byte)0, groupId, subject, body);
                 allOriginalQuesions.add(question);
             }
         });
@@ -111,10 +112,35 @@ public class MongoDBFacade {
             @Override
             public void apply(final Document document) {
                 
+                String questionId = (String) document.get("questionId"); 
                 String groupId = (String) document.get("groupId");
+                String subject = (String) document.get("subject");
                 String body = (String) document.get("body");
                 String isRelevant = (String) document.get("isRelevantToOriginalQuestion");
-                Question question = new Question((byte)1, groupId, body, isRelevant);
+                Question question = new Question(questionId, (byte)1, groupId, subject, body, isRelevant);
+                allRelevantQuesions.add(question);
+            }
+        });
+        return allRelevantQuesions;
+    }
+    
+    public List<Question> getAllQuestions() {
+        MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
+        
+        BasicDBObject query = new BasicDBObject();
+        FindIterable<Document> result = qaCollection.find(query);
+        
+        final List<Question> allRelevantQuesions = new ArrayList<>();
+        result.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                
+                String questionId = (String) document.get("questionId"); 
+                String groupId = (String) document.get("groupId");
+                String subject = (String) document.get("subject");
+                String body = (String) document.get("body");
+                String isRelevant = (String) document.get("isRelevantToOriginalQuestion");
+                Question question = new Question(questionId, (byte)1, groupId, subject, body, isRelevant);
                 allRelevantQuesions.add(question);
             }
         });

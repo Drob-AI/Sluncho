@@ -16,7 +16,7 @@ public final class QueryAnswerer {
 	private static ArrayList<IQuestionHandler> questionHandlers = new ArrayList<IQuestionHandler>();
 	
 	static {
-		postProcessors.add(new LuceneNamedEntityCorrector());
+//		postProcessors.add(new LuceneNamedEntityCorrector());
                 postProcessors.add(new POSPipelineProcessor());
 		postProcessors.add(new SynonymusQueryEnchancer());
 //		
