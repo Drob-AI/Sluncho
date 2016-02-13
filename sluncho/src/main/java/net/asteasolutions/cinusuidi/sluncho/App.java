@@ -65,7 +65,7 @@ public class App
         QuestionRepository repo = QuestionRepository.Instance();
         
         OneOutValidation testUnit = new OneOutValidation();
-        testUnit.runDoc2vecClassifierrRandomTest();
+        testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest();
         Doc2VecGroupClassifier.reset();
         Doc2VecGroupClassifier.train();   
