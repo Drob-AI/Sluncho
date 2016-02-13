@@ -64,11 +64,9 @@ public class App
         //Create new repository for reading document from file system
         QuestionRepository repo = QuestionRepository.Instance();
         
-        OneOutValidation testUnit = new OneOutValidation();
-        testUnit.runDoc2vecClassifierrRandomTest(1);
-//      testUnit.runDoc2vecClassifierFullTest();
-        Doc2VecGroupClassifier.reset();
-        Doc2VecGroupClassifier.train();   
+//        OneOutValidation testUnit = new OneOutValidation();
+//        testUnit.runDoc2vecClassifierrRandomTest(1);
+//      testUnit.runDoc2vecClassifierFullTest(); 
       
         //Create new indexer for parsed documents
         DocumentIndexer questionIndexer = new DocumentIndexer(repo, idParser);

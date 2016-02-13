@@ -33,10 +33,6 @@ public class Bot {
 	public static String getAnswer(String question) throws QuestionParserException {
             Query query = App.questionParser.parse(question);
             
-            // TODO remove from here. only for testing:
-            Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
-            System.out.println(classifyer.classifyToGroup(query).getFirst());
-            
             QueryResult result = QueryAnswerer.getQueryResult(query);
             if(result != null) {
                 return result.content();
