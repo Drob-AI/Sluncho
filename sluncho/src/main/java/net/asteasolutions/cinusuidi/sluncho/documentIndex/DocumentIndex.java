@@ -52,12 +52,14 @@ public class DocumentIndex {
         try {
             Document doc = new Document();
             Field typeField = new StringField("type", entry.type, Field.Store.YES);
+            Field groupIdField = new StringField("groupId", entry.type, Field.Store.YES);
             Field questionIdField = new StringField("questionId", entry.questionId, Field.Store.YES);
             Field subjectField = new TextField("subject", entry.subject, Field.Store.YES);
             Field predicateField = new TextField("predicate", entry.predicate, Field.Store.YES);
             Field additionGroupField = new TextField("additionGroup", entry.additionGroup, Field.Store.YES);
             
             doc.add(typeField);
+            doc.add(groupIdField);
             doc.add(questionIdField);
             doc.add(subjectField);
             doc.add(predicateField);

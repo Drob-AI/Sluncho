@@ -11,6 +11,7 @@ public class IdentityDocumentParser implements IDocumentParser {
 		LegalDocument result = new LegalDocument();
 		result.title = document.title;
 		result.content = document.content;
+                result.identifier = document.groupId;
 		return result;
 	}
 

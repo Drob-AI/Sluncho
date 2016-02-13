@@ -53,6 +53,7 @@ public class FullTextSearcher {
                     Document doc = searcher.doc(hits[i].doc);
                     DocumentIndexEntry entity = new DocumentIndexEntry();
                     entity.questionId = doc.get("questionId");
+                    entity.groupId = doc.get("groupId");
                     entity.score = hits[i].score;
                     result.add(entity);
             }

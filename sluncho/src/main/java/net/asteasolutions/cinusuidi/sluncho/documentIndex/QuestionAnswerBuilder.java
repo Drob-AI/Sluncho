@@ -11,11 +11,12 @@ public class QuestionAnswerBuilder {
 		return str == null || str.length() == 0 || str == "" || str.matches("\\s+"); 
 	}
 	
-	private void generateQuestions(Paragraph p, String context, ArrayList<QuestionAnswer> qas) {
+	private void generateQuestions(Paragraph p, String groupId, String context, ArrayList<QuestionAnswer> qas) {
 		QuestionAnswer qa = new QuestionAnswer();
 		qa.context = context;
 		qa.question = p.title;
 		qa.answer = p.content;
+                qa.groupId = groupId;
 		
 		if(!isEmpty(qa.answer) && !isEmpty(qa.question)) {
 			qas.add(qa);
@@ -25,13 +26,14 @@ public class QuestionAnswerBuilder {
 		String innerContext = context + '.' + p.title;
 		while(subParagraphIter.hasNext()) {
 			Paragraph child = subParagraphIter.next();
-			generateQuestions(child, innerContext, qas);
+			generateQuestions(child,groupId, innerContext, qas);
 		}
 	}
 	
 	public ArrayList<QuestionAnswer> split(LegalDocument document) {
+                String groupId = document.identifier;
 		ArrayList<QuestionAnswer> qas = new ArrayList<QuestionAnswer>();
-		generateQuestions(document, "", qas);
+		generateQuestions(document, groupId, "", qas);
 		return qas;
 	}
 }

@@ -63,17 +63,17 @@ public class OneOutValidation {
 		BigDecimal precision = new BigDecimal(success).divide(all);
 		System.out.println(precision.toString());
 	}
-	
-	public static void main(String args[]) {       
-		OneOutValidation a = new OneOutValidation();
-		
-		System.out.println("???????????????????????");
-		System.out.println("Top 5:");
-		a.runDoc2vecClassifierrRandomTest(5);
-		System.out.println("??????????????????????");
-		System.out.println("Top 1:");
-		a.runDoc2vecClassifierrRandomTest(1);
-		Doc2VecGroupClassifier.reset();
-	}
+
+//	public static void main(String args[]) {       
+//		OneOutValidation a = new OneOutValidation();
+//		
+//		System.out.println("???????????????????????");
+//		System.out.println("Top 5:");
+//		a.runDoc2vecClassifierrRandomTest(5);
+//		System.out.println("??????????????????????");
+//		System.out.println("Top 1:");
+//		a.runDoc2vecClassifierrRandomTest(1);
+//		Doc2VecGroupClassifier.reset();
+//	}
 	
 }
