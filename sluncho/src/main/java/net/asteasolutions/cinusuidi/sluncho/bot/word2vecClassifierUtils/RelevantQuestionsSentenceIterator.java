@@ -20,24 +20,32 @@ public class RelevantQuestionsSentenceIterator implements LabelAwareSentenceIter
 
 	public RelevantQuestionsSentenceIterator(List<Question> allQ) {
 		questions = allQ;
-		//labels = QuestionRepository.Instance().labels;
+		// labels = QuestionRepository.Instance().labels;
 	}
 
 	public RelevantQuestionsSentenceIterator() {
 		QuestionRepository repo = QuestionRepository.Instance();
 		questions = repo.allQuestions;
-		//labels = repo.labels;
-		//System.out.println("RelevantQuestionsSentenceIterator() called");
+		// labels = repo.labels;
+		// System.out.println("RelevantQuestionsSentenceIterator() called");
 	}
 
 	@Override
 	public String nextSentence() {
 		String ret = questions.get(position).getBody();
-        //currentLabel = labels.get(position);
-        if(sentencePreProcessor != null)
-            ret = sentencePreProcessor.preProcess(ret);
-        position++;
-        return ret;
+		// currentLabel = labels.get(position);
+		if (sentencePreProcessor != null)
+			ret = sentencePreProcessor.preProcess(ret);
+		position++;
+		return ret;
+	}
+
+	public String lastId() {
+		return questions.get(position - 1).getQuestionId();
+	}
+
+	public String lastGroupId() {
+		return questions.get(position - 1).getQuestionId();
 	}
 
 	@Override
@@ -57,14 +65,14 @@ public class RelevantQuestionsSentenceIterator implements LabelAwareSentenceIter
 	}
 
 	@Override
-    public SentencePreProcessor getPreProcessor() {
-        return sentencePreProcessor;
-    }
+	public SentencePreProcessor getPreProcessor() {
+		return sentencePreProcessor;
+	}
 
-    @Override
-    public void setPreProcessor(SentencePreProcessor preProcessor) {
-        this.sentencePreProcessor = preProcessor;
-    }
+	@Override
+	public void setPreProcessor(SentencePreProcessor preProcessor) {
+		this.sentencePreProcessor = preProcessor;
+	}
 
 	@Override
 	public String currentLabel() {

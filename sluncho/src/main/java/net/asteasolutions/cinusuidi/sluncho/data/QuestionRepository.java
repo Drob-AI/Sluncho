@@ -190,6 +190,7 @@ public class QuestionRepository implements IDocumentRepository {
         for (Question q: allQuestions) {
             if(q.getQuestionId().equals(ref)) {
                 IndexableDocument result = new IndexableDocument();
+                result.groupId = q.getGroupId();
                 result.title = q.getSubject();
                 result.content = q.getBody();
                 return result;

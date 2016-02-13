@@ -68,10 +68,11 @@ public class DocumentSearcher {
                     Document doc = searcher.doc(hits[i].doc);
                     DocumentIndexEntry entity = new DocumentIndexEntry();
                     entity.type = doc.get("type");
+                    entity.groupId = doc.get("groupId");
                     entity.additionGroup = doc.get("additionGroup");
                     entity.score = hits[i].score;
                     entity.subject = doc.get("subject");;
-                    entity.questionId = doc.get("questionId");;
+                    entity.questionId = doc.get("questionId");
                     entity.predicate = doc.get("predicate");
                     result.add(entity);
             }

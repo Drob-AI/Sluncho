@@ -20,21 +20,19 @@ import net.asteasolutions.cinusuidi.sluncho.documentIndex.FullTextSearcher;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QueryToken;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
-import org.deeplearning4j.berkeley.Pair;
 
 /**
  *
  * @author mihail
  */
-public class SemanticRecognizer implements IQuestionRecognizer {
+public class FullTextRecognizer implements IQuestionRecognizer {
 
     @Override
     public List<QuestionResult> classify(Query query) {
         ArrayList<QuestionResult> result = new ArrayList<>();
-        ArrayList<QuestionResult> trueResult = new ArrayList<>();
             
         try {
-            DocumentSearcher docSearcher = new DocumentSearcher();
+            FullTextSearcher fullTextSearcher = new FullTextSearcher();
             DocumentIndexEntry entry = new DocumentIndexEntry();
             entry.additionGroup = "";
             entry.predicate = "";
@@ -49,27 +47,15 @@ public class SemanticRecognizer implements IQuestionRecognizer {
                 entry.predicate += " " + token.getOriginalText();
             }
         
-            List<DocumentIndexEntry> docEntries = docSearcher.search(entry);
+            List<DocumentIndexEntry> fullTextEntries = fullTextSearcher.search(entry);
             
-            HashMap<String, Pair<String, Float>> map = new HashMap<>();
-            
-            for(DocumentIndexEntry doc: docEntries) {
-                if(!map.containsKey(doc.questionId)) {
-                    map.put(doc.questionId, new Pair<>(doc.groupId, 0f));
-                }
-                Pair<String, Float> p = map.get(doc.questionId);
-                p.setSecond(p.getSecond() + doc.score);
+            for(DocumentIndexEntry fullText: fullTextEntries) {
+                result.add(new QuestionResult(fullText.questionId, fullText.groupId, fullText.score));
             }
-            
-            for(String key: map.keySet()) {
-                Pair<String, Float> p = map.get(key);
-                result.add(new QuestionResult(key, p.getFirst(), p.getSecond()));
-            }
-            
         } catch (IOException | ParseException | QueryNodeException ex) {
             ex.printStackTrace();
         }
-        return trueResult;
+        return result;
     }
     
 }
