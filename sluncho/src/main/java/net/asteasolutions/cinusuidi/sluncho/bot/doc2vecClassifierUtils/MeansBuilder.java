@@ -1,10 +1,13 @@
 package net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils;
 
 import lombok.NonNull;
+import net.asteasolutions.cinusuidi.sluncho.utils.AlgorithmHelpers;
+
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.text.documentiterator.LabelledDocument;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.EndingPreProcessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -34,7 +37,11 @@ public class MeansBuilder {
      * @return
      */
     public INDArray documentAsVector(@NonNull LabelledDocument document) {
+    	
         List<String> documentAsTokens = tokenizerFactory.create(document.getContent()).getTokens();
+        List<String> stopWords = new AlgorithmHelpers().getListOfStopWords();
+        documentAsTokens.removeAll(stopWords);
+        
         AtomicInteger cnt = new AtomicInteger(0);
         for (String word: documentAsTokens) {
             if (vocabCache.containsWord(word)) cnt.incrementAndGet();
@@ -43,6 +50,7 @@ public class MeansBuilder {
 
         cnt.set(0);
         for (String word: documentAsTokens) {
+//        	System.out.println(new EndingPreProcessor().preProcess(word).toString());
             if (vocabCache.containsWord(word))
                 allWords.putRow(cnt.getAndIncrement(), lookupTable.vector(word));
         }
