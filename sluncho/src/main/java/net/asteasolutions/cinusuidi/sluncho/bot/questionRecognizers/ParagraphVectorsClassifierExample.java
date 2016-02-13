@@ -37,50 +37,50 @@ public class ParagraphVectorsClassifierExample {
 
     private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsClassifierExample.class);
 
-    public static void main(String[] args) throws Exception {
-        RelevantQuestionsIterator iterator = new RelevantQuestionsIterator();
-        // build a iterator for our dataset
-//        LabelAwareIterator iterator = new FileLabelAwareIterator.Builder()
-//                .addSourceFolder(resource.getFile())
+//    public static void main(String[] args) throws Exception {
+//        RelevantQuestionsIterator iterator = new RelevantQuestionsIterator();
+//        // build a iterator for our dataset
+////        LabelAwareIterator iterator = new FileLabelAwareIterator.Builder()
+////                .addSourceFolder(resource.getFile())
+////                .build();
+//
+//        TokenizerFactory t = new DefaultTokenizerFactory();
+//        t.setTokenPreProcessor(new CommonPreprocessor());
+//
+//        // ParagraphVectors training configuration
+//        ParagraphVectors paragraphVectors = new ParagraphVectors.Builder()
+//                .learningRate(0.025)
+//                .minLearningRate(0.001)
+//                .batchSize(1000)
+//                .epochs(20)
+//                .iterate(iterator)
+//                .trainWordVectors(true)
+//                .tokenizerFactory(t)
 //                .build();
-
-        TokenizerFactory t = new DefaultTokenizerFactory();
-        t.setTokenPreProcessor(new CommonPreprocessor());
-
-        // ParagraphVectors training configuration
-        ParagraphVectors paragraphVectors = new ParagraphVectors.Builder()
-                .learningRate(0.025)
-                .minLearningRate(0.001)
-                .batchSize(1000)
-                .epochs(20)
-                .iterate(iterator)
-                .trainWordVectors(true)
-                .tokenizerFactory(t)
-                .build();
-
-        // Start model training
-        paragraphVectors.fit();
-
-        /*
-         At this point we assume that we have model built and we can check, which categories our unlabeled document falls into
-         So we'll start loading our unlabeled documents and checking them
-        */
-      
-        RelevantQuestionsIterator unlabeledIterator = new RelevantQuestionsIterator();
-        MeansBuilder meansBuilder = new MeansBuilder((InMemoryLookupTable<VocabWord>) paragraphVectors.getLookupTable(), t);
-        LabelSeeker seeker = new LabelSeeker(iterator.getLabelsSource().getLabels(), (InMemoryLookupTable<VocabWord>)  paragraphVectors.getLookupTable());
-
-        while (unlabeledIterator.hasNextDocument()) {
-            LabelledDocument document = unlabeledIterator.nextDocument();
-
-            INDArray documentAsCentroid = meansBuilder.documentAsVector(document);
-            List<Pair<String, Double>> scores = seeker.getScores(documentAsCentroid);
-
-            log.info("Document '" + document.getLabel() + "' falls into the following categories: ");
-            for (Pair<String, Double> score: scores) {
-                log.info("        " + score.getFirst() + ": " + score.getSecond());
-            }
-
-        }
-    }
+//
+//        // Start model training
+//        paragraphVectors.fit();
+//
+//        /*
+//         At this point we assume that we have model built and we can check, which categories our unlabeled document falls into
+//         So we'll start loading our unlabeled documents and checking them
+//        */
+//      
+//        RelevantQuestionsIterator unlabeledIterator = new RelevantQuestionsIterator();
+//        MeansBuilder meansBuilder = new MeansBuilder((InMemoryLookupTable<VocabWord>) paragraphVectors.getLookupTable(), t);
+//        LabelSeeker seeker = new LabelSeeker(iterator.getLabelsSource().getLabels(), (InMemoryLookupTable<VocabWord>)  paragraphVectors.getLookupTable());
+//
+//        while (unlabeledIterator.hasNextDocument()) {
+//            LabelledDocument document = unlabeledIterator.nextDocument();
+//
+//            INDArray documentAsCentroid = meansBuilder.documentAsVector(document);
+//            List<Pair<String, Double>> scores = seeker.getScores(documentAsCentroid);
+//
+//            log.info("Document '" + document.getLabel() + "' falls into the following categories: ");
+//            for (Pair<String, Double> score: scores) {
+//                log.info("        " + score.getFirst() + ": " + score.getSecond());
+//            }
+//
+//        }
+//    }
 }

@@ -7,13 +7,14 @@ import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProce
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
-import net.asteasolutions.cinusuidi.sluncho.bot.questionHandlers.IQuestionHandler;
-import net.asteasolutions.cinusuidi.sluncho.bot.questionHandlers.SemanticHandler;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
+import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 public final class QueryAnswerer {
 	private static ArrayList<IPostPipelineProcessor> postProcessors = new ArrayList<IPostPipelineProcessor>();
-	private static ArrayList<IQuestionHandler> questionHandlers = new ArrayList<IQuestionHandler>();
+	private static ArrayList<IQuestionRecognizer> questionHandlers = new ArrayList<IQuestionRecognizer>();
 	
 	static {
 //		postProcessors.add(new LuceneNamedEntityCorrector());
@@ -22,13 +23,12 @@ public final class QueryAnswerer {
 //		
 //		questionHandlers.add(new HostnameHandler());
 //		questionHandlers.add(new AsteaEntitiesHandler());
-                questionHandlers.add(new SemanticHandler());
+                questionHandlers.add(new SemanticRecognizer());
 	}
 	
 	public static QueryResult getQueryResult(Query query) {
 		ArrayList<Query> alternateQueries = postProcessQuery(query);
-//		ClassifiedResult bestClassifiedResult = null;
-		
+
 		Iterator<Query> iter = alternateQueries.iterator();
 
 		while(iter.hasNext()) {
@@ -40,8 +40,7 @@ public final class QueryAnswerer {
                         }
 		}
 		
-		return new QueryResult("Could not find an answer", 0);
-//		return bestClassifiedResult.getQueryResult();
+		return new QueryResult(null, 0);
 	}
 	
 	private static ArrayList<Query> postProcessQuery(Query query) {
@@ -59,36 +58,43 @@ public final class QueryAnswerer {
 	}
 	
 	private static ClassifiedResult getQueryAnswer(Query query) {
-		Iterator<IQuestionHandler> iter = questionHandlers.iterator();
+		Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
 		
 		while(iter.hasNext()) {
-			IQuestionHandler currentHandler = iter.next();
-			IQuestionRecognizer recognizer = currentHandler.getQuestionRecognizer();
-			QuestionResult currentResult = recognizer.classify(query);
-                        if(currentResult != null && currentResult.certainty() > 0) {
-                            return new ClassifiedResult(currentResult, currentHandler);
-                        }
+                    IQuestionRecognizer recognizer = iter.next();
+                    QuestionResult currentResult = recognizer.classify(query);
+                    if(currentResult != null && currentResult.certainty() > 0) {
+                        return new ClassifiedResult(currentResult);
+                    }
 		}
 		
-		return new ClassifiedResult(null, null);
+		return new ClassifiedResult(null);
 	}
 	
 	private static class ClassifiedResult
 	{
 		private QuestionResult result;
-		private IQuestionHandler handler;
 
-		public ClassifiedResult(QuestionResult bestResult,
-				IQuestionHandler bestHandler) {
+		public ClassifiedResult(QuestionResult bestResult) {
 			this.result = bestResult;
-			this.handler = bestHandler;
 		}
 		
 		public QueryResult getQueryResult() {
-			if(handler == null || result == null) {
-				return new QueryResult("Could not find an answer", 0);
+			if(result == null) {
+				return new QueryResult(null, 0);
 			}
-			return new QueryResult(handler.getDataSource().getDocument(result.documentName()), result.certainty());
+                        QuestionRepository repo = QuestionRepository.Instance();
+                        
+                        Question resultQuestion = null;
+                        
+                        for(Question q : repo.allQuestions) {
+                            if(q.getQuestionId().equals(result.documentName())) {
+                                resultQuestion = q;
+                                break;
+                            }
+                        }
+                        
+			return new QueryResult(resultQuestion, result.certainty());
 		}
 		
 		public float certainty() {
