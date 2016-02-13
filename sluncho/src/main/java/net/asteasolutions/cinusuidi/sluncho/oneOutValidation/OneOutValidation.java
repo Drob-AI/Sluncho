@@ -52,10 +52,10 @@ public class OneOutValidation {
 		System.out.println(precision.toString());
 	}
 	
-	public static void main(String args[]) {       
-		OneOutValidation a = new OneOutValidation();
-		a.runDoc2vecClassifierrRandomTest();
-		Doc2VecGroupClassifier.reset();
-	}
+//	public static void main(String args[]) {       
+//		OneOutValidation a = new OneOutValidation();
+//		a.runDoc2vecClassifierrRandomTest();
+//		Doc2VecGroupClassifier.reset();
+//	}
 	
 }
