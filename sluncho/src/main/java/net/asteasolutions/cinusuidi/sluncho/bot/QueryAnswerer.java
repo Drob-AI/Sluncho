@@ -7,8 +7,10 @@ import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProce
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
@@ -24,6 +26,8 @@ public final class QueryAnswerer {
 //		questionHandlers.add(new HostnameHandler());
 //		questionHandlers.add(new AsteaEntitiesHandler());
                 questionHandlers.add(new SemanticRecognizer());
+                questionHandlers.add(new FullTextRecognizer());
+                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
 	public static QueryResult getQueryResult(Query query) {
