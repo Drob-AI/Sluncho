@@ -1,20 +1,9 @@
 package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
 
-import java.io.FileNotFoundException;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import org.deeplearning4j.berkeley.Pair;
-import org.deeplearning4j.models.embeddings.WeightLookupTable;
-import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
-import org.deeplearning4j.models.word2vec.VocabWord;
-import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
-import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
-import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
-import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
@@ -33,6 +22,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
     private final static int EPOCHS = 20;//20;
     private final static int WIN_SIZE = 5;
     private final static int MIN_WORD_FREQ = 5;
+    private final static long RANDOM_SEED = 42;
 
     private Word2Vec4Phrases phraseComparator;
 	
@@ -40,12 +30,12 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
     	this.phraseComparator = new Word2Vec4Phrases(this.ITERATIONS, this.EPOCHS, 
     			this.VECTOR_LENGTH, this.MIN_WORD_FREQ, 
     			this.LEARNING_RATE, this.WIN_SIZE, 
-    			(long)42);
+    			this.RANDOM_SEED);
     }
 	
 	@Override
 	public QuestionResult classify(Query query) {
-		String queryPhrase = "best night bar in doha";//query.toString();
+		String queryPhrase = query.originalText;
 		
 		RelevantQuestionsSentenceIterator questionsIterator = new RelevantQuestionsSentenceIterator();
 		PriorityQueue<Pair<String, Double>> scores = new PriorityQueue<>(1, new Comparator<Pair<String, Double>>() {
