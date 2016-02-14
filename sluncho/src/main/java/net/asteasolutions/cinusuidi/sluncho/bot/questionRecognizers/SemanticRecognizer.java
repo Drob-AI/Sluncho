@@ -7,6 +7,7 @@ package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,24 @@ public class SemanticRecognizer implements IQuestionRecognizer {
                 Pair<String, Float> p = map.get(key);
                 result.add(new QuestionResult(key, p.getFirst(), p.getSecond()));
             }
+            
+            HashMap<String, Float> groupMap = new HashMap<>();
+            for (QuestionResult qr: result) {
+                if(!groupMap.containsKey(qr.groupId())) {
+                    groupMap.put(qr.groupId(), 0f);
+                }
+                groupMap.put(qr.groupId(), Float.max(qr.certainty(), groupMap.get(qr.groupId())));
+            }
+            for(String key: groupMap.keySet()) {
+                Float p = groupMap.get(key);
+                trueResult.add(new QuestionResult(key, key, p));
+            }
+            trueResult.sort(new Comparator<QuestionResult>() {
+                @Override
+                public int compare(QuestionResult pr1, QuestionResult pr2) {
+                    return new Float(pr2.certainty()).compareTo(new Float(pr1.certainty()));
+                }
+            });
             
         } catch (IOException | ParseException | QueryNodeException ex) {
             ex.printStackTrace();

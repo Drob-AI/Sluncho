@@ -172,7 +172,7 @@ public class QuestionRepository implements IDocumentRepository {
 		    List<Question> groupedQuestions = entry.getValue();
 		    
 //		    Integer j = ThreadLocalRandom.current().nextInt(0, groupedQuestions.size());
-		    Integer j = 0;
+		    Integer j = groupedQuestions.size() > 1 ? 1: 0;
 		    oneOutRandomTestingSet.add(groupedQuestions.get(j));
 		}
 		
@@ -196,6 +196,10 @@ public class QuestionRepository implements IDocumentRepository {
 		}
 		return result;
 	}
+        
+    public IDocumentRepository getTrainingSetRepository () {
+        return new ArrayRepository(oneOutRandomTrainingSet);
+    }
 	
     @Override
     public String[] getDocumentsRefs() throws IOException {

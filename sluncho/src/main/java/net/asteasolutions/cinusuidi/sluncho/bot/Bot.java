@@ -33,9 +33,9 @@ public class Bot {
 	public static String getAnswer(String question) throws QuestionParserException {
             Query query = App.questionParser.parse(question);
             
-            QueryResult result = QueryAnswerer.getQueryResult(query);
+            List<QuestionResult> result = QueryAnswerer.getQueryResult(query);
             if(result != null) {
-                return result.content();
+                return "niceee, but probably something should print something here";
             }
             return "I could not find an answer to your question. If you want to send your question to the umbrella team for answering click :thumbsup:";
 	}

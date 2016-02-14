@@ -11,51 +11,42 @@ import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.Synonymus
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
-import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
+//import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 public final class QueryAnswerer {
-	private static ArrayList<IPostPipelineProcessor> postProcessors = new ArrayList<IPostPipelineProcessor>();
-	private static ArrayList<IQuestionRecognizer> questionHandlers = new ArrayList<IQuestionRecognizer>();
+	public static ArrayList<IPostPipelineProcessor> postProcessors = new ArrayList<IPostPipelineProcessor>();
+	public static ArrayList<IQuestionRecognizer> questionHandlers = new ArrayList<IQuestionRecognizer>();
 	
 	static {
 //		postProcessors.add(new LuceneNamedEntityCorrector());
                 postProcessors.add(new POSPipelineProcessor());
-		postProcessors.add(new SynonymusQueryEnchancer());
+//		postProcessors.add(new SynonymusQueryEnchancer());
 //		
 //		questionHandlers.add(new HostnameHandler());
 //		questionHandlers.add(new AsteaEntitiesHandler());
                 questionHandlers.add(new SemanticRecognizer());
                 questionHandlers.add(new FullTextRecognizer());
-                questionHandlers.add(new WordEmbeddingsRecognizer());
+//                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
-	public static QueryResult getQueryResult(Query query) {
+	public static List<QuestionResult> getQueryResult(Query query) {
 		ArrayList<Query> alternateQueries = postProcessQuery(query);
 
 		Iterator<Query> iter = alternateQueries.iterator();
                 
                 ArrayList<QuestionResult> results = new ArrayList<>();
 
+                //TODO: find these some better way
 		while(iter.hasNext()) {
                     Query curQuery = iter.next();
                     System.out.println("Search for answer for query: " + query.orderedTokens);
                     List<QuestionResult> qResults = getQueryAnswer(curQuery);
                     results.addAll(qResults);
 		}
-                
-                //VERY VERY IMPORTANT
-                //TODO: use some algorighm to determine this instead of taking the first element
-                QuestionResult qResult = results.get(0);
-                ClassifiedResult result = new ClassifiedResult(qResult);
-                //VERY VERY IMPORTANT
-                
-                if(result != null && result.certainty() > 0) {
-                    return result.getQueryResult();
-                }
-		
-		return new QueryResult(null, 0);
+               
+                return results;
 	}
 	
 	private static ArrayList<Query> postProcessQuery(Query query) {

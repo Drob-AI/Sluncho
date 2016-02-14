@@ -52,7 +52,7 @@ public class FullTextIndexer {
         try {
             Document doc = new Document();
             Field questionIdField = new TextField("questionId", questionId, Field.Store.YES);
-            Field groupIdField = new TextField("questionId", groupId, Field.Store.YES);
+            Field groupIdField = new TextField("groupId", groupId, Field.Store.YES);
             Field questionField = new TextField("question", question, Field.Store.YES);
             Field answerField = new TextField("answer", answer, Field.Store.YES);
             Field contextField = new TextField("context", context, Field.Store.YES);
