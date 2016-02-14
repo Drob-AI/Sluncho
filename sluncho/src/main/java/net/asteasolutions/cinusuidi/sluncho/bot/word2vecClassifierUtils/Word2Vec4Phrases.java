@@ -55,8 +55,9 @@ public class Word2Vec4Phrases {
 		this.MIN_WORD_FREQ = minWordFreq;
 		this.RANDOM_SEED = randomSeed;
 		
-		String filePath = "/home/dimiter/Downloads/SemEval2016-Task3-CQA-QL-train-part2-with-multiline.txt";
-        this.iter = new BasicLineIterator(filePath);
+		//String filePath = "/home/dimiter/Downloads/SemEval2016-Task3-CQA-QL-train-part2-with-multiline.txt";
+        String filePath = System.getProperty("txtDataPath") + System.getProperty("txtDataName");
+		this.iter = new BasicLineIterator(filePath);
 		//this.iter = new RelevantQuestionsSentenceIterator();
         this.t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
