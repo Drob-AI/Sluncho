@@ -39,7 +39,7 @@ public class MeansBuilder {
     public INDArray documentAsVector(@NonNull LabelledDocument document) {
     	
         List<String> documentAsTokens = tokenizerFactory.create(document.getContent()).getTokens();
-        List<String> stopWords = new AlgorithmHelpers().getListOfStopWords();
+        List<String> stopWords = new AlgorithmHelpers().getListOfDomainStopWords();
         documentAsTokens.removeAll(stopWords);
         
         AtomicInteger cnt = new AtomicInteger(0);
