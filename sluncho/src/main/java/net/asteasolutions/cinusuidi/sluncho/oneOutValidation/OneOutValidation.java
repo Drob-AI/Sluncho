@@ -48,9 +48,9 @@ public class OneOutValidation {
 //		    List<Pair<String, Double>> resultsLabel = classifyer.classifyToTopNGroups(forTesting, topNResults);
 		    List<Pair<String, Double>> resultsLabel = classifyer.bagginClassifyToTopNGroups(forTesting, topNResults);
 		    
-//		    System.out.println("------------------------");
+		    System.out.println("------------------------");
 		    for(Pair<String, Double> labelResult: resultsLabel) {
-//		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
+		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
 		    	if(labelResult.getFirst().equals(forTesting.getGroupId())){
 			    	success++;
 			    }
@@ -64,16 +64,16 @@ public class OneOutValidation {
 		System.out.println(precision.toString());
 	}
 
-//	public static void main(String args[]) {       
-//		OneOutValidation a = new OneOutValidation();
-//		
-//		System.out.println("???????????????????????");
-//		System.out.println("Top 5:");
-//		a.runDoc2vecClassifierrRandomTest(5);
-//		System.out.println("??????????????????????");
-//		System.out.println("Top 1:");
-//		a.runDoc2vecClassifierrRandomTest(1);
-//		Doc2VecGroupClassifier.reset();
-//	}
+	public static void main(String args[]) {       
+		OneOutValidation a = new OneOutValidation();
+		
+		System.out.println("???????????????????????");
+		System.out.println("Top 5:");
+		a.runDoc2vecClassifierrRandomTest(5);
+		System.out.println("??????????????????????");
+		System.out.println("Top 1:");
+		a.runDoc2vecClassifierrRandomTest(1);
+		Doc2VecGroupClassifier.reset();
+	}
 	
 }
