@@ -19,7 +19,10 @@ public class RelevantQuestionsSentenceIterator implements LabelAwareSentenceIter
 	private SentencePreProcessor sentencePreProcessor;
 
 	public RelevantQuestionsSentenceIterator(List<Question> allQ) {
-		questions = allQ;
+		this();
+		if(allQ != null) {
+			questions = allQ;
+		}
 		// labels = QuestionRepository.Instance().labels;
 	}
 
@@ -34,19 +37,21 @@ public class RelevantQuestionsSentenceIterator implements LabelAwareSentenceIter
 	public String nextSentence() {
 		String ret = questions.get(position).getBody();
 		// currentLabel = labels.get(position);
+		currentLabel = questions.get(position).getGroupId();
+		//System.out.println(questions.get(position).getQuestionId() + " : " + questions.get(position).getGroupId());
 		if (sentencePreProcessor != null)
 			ret = sentencePreProcessor.preProcess(ret);
 		position++;
 		return ret;
 	}
 
-	public String lastId() {
-		return questions.get(position - 1).getQuestionId();
-	}
-
-	public String lastGroupId() {
-		return questions.get(position - 1).getQuestionId();
-	}
+//	public String lastId() {
+//		return questions.get(position - 1).getQuestionId();
+//	}
+//
+//	public String lastGroupId() {
+//		return questions.get(position - 1).getQuestionId();
+//	}
 
 	@Override
 	public boolean hasNext() {

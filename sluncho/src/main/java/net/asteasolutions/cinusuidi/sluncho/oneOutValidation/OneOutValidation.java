@@ -1,20 +1,27 @@
 package net.asteasolutions.cinusuidi.sluncho.oneOutValidation;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.deeplearning4j.berkeley.Pair;
 
+import net.asteasolutions.cinusuidi.sluncho.App;
+import net.asteasolutions.cinusuidi.sluncho.bot.Query;
+import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
+import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.Doc2VecGroupClassifier;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
+import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 
 public class OneOutValidation {
 	//this could take hours: 
 	public OneOutValidation() {
 		QuestionRepository.Instance().extractRandomOneOutSet();
-		Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
+		//Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
 	}
 	public  void runDoc2vecClassifierFullTest(){
 		QuestionRepository.Instance().extractAllOneOutSets();
@@ -37,21 +44,32 @@ public class OneOutValidation {
 //		System.out.println(success/ (QuestionRepository.Instance().oneOutFullTestingSet.size()));
 	}
 	
-	public void runDoc2vecClassifierrRandomTest(Integer topNResults){
+	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
+		List<Question> allRelQ = QuestionRepository.Instance().allRelevantQuestions;
+	    WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(allRelQ);
 		
-//		Doc2VecGroupClassifier.train();
 		for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-		    Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
 		    
-//		    List<Pair<String, Double>> resultsLabel = classifyer.classifyToTopNGroups(forTesting, topNResults);
-		    List<Pair<String, Double>> resultsLabel = classifyer.bagginClassifyToTopNGroups(forTesting, topNResults);
+		    Query forTestingQuery = null;
+			try {
+				forTestingQuery = App.questionParser.parse(forTesting.getBody());
+				POSPipelineProcessor proc = new POSPipelineProcessor();
+				ArrayList<Query> forTestingQueryList = new ArrayList<Query>();
+				forTestingQueryList.add(forTestingQuery);
+				forTestingQueryList = proc.expand(forTestingQueryList);
+				forTestingQuery = forTestingQueryList.get(0);
+			} catch (QuestionParserException e) {
+				e.printStackTrace();
+			}
+		    List<QuestionResult> resultsLabel = classifyer.classify(forTestingQuery);
+		    resultsLabel = resultsLabel.subList(0, Math.min(resultsLabel.size(), topNResults));
 		    
 //		    System.out.println("------------------------");
-		    for(Pair<String, Double> labelResult: resultsLabel) {
+		    for(QuestionResult labelResult: resultsLabel) {
 //		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
-		    	if(labelResult.getFirst().equals(forTesting.getGroupId())){
+		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
 			    }
 		    }

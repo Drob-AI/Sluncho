@@ -64,9 +64,12 @@ public class App
         //Create new repository for reading document from file system
         QuestionRepository repo = QuestionRepository.Instance();
         
-//        OneOutValidation testUnit = new OneOutValidation();
+        OneOutValidation testUnit = new OneOutValidation();
 //        testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest(); 
+        testUnit.runWordEmbeddingsClassifierrRandomTest(5);
+        /*
+        
       
         //Create new indexer for parsed documents
         DocumentIndexer questionIndexer = new DocumentIndexer(repo, idParser);
@@ -83,7 +86,7 @@ public class App
 	        } catch (QuestionParserException e) {
 	        // TODO Auto-generated catch block
 	        }
-        }
+        }*/
 //        s.close();
     }
 }

@@ -26,6 +26,8 @@ public class QuestionRepository implements IDocumentRepository {
         
         extractAllQuestions();
         extractAllLabels();
+        
+        extractAllRelevantQuestions();
     }
     
     public static QuestionRepository Instance() {
@@ -38,6 +40,8 @@ public class QuestionRepository implements IDocumentRepository {
     public List<Question> originalQuestions;
 	public List<Question> allQuestions =  new ArrayList<>();
 	public List<String> labels = new ArrayList<>();
+
+	public List<Question> allRelevantQuestions = new ArrayList<>();
 	
 	//needed for the full testing process
 	public HashMap<String, List<Question>> oneOutFullTrainingSets = new HashMap<>();
@@ -71,6 +75,23 @@ public class QuestionRepository implements IDocumentRepository {
         	for(Question relQuestion: relQuestions) {
         		if(!relQuestion.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {
         			allQuestions.add(relQuestion);
+        		}
+        	}
+        }
+	}
+	
+	public void extractAllRelevantQuestions() {		
+ 		if ( this.originalQuestions == null) {
+ 			this.extractOriginalQuestions();
+ 			this.extractAllLabels();
+ 		}
+ 		
+ 		for(Question question: this.originalQuestions) {
+ 			//allQuestions.add(question);
+        	List<Question> relQuestions = mongoConnection.getAllRelevantQuestions(question.getGroupId());
+        	for(Question relQuestion: relQuestions) {
+        		if(!relQuestion.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {
+        			allRelevantQuestions.add(relQuestion);
         		}
         	}
         }
