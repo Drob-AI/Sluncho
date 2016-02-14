@@ -52,6 +52,7 @@ public class OneOutValidation {
 		    for(Pair<String, Double> labelResult: resultsLabel) {
 		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
 		    	if(labelResult.getFirst().equals(forTesting.getGroupId())){
+		    		System.err.println(true);
 			    	success++;
 			    }
 		    }

@@ -70,7 +70,7 @@ public class Doc2VecGroupClassifier {
 		tokenizer.setTokenPreProcessor(new EndingPreProcessor());
 
 		AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-		List<String> stopWords = algoHelper.getListOfStopWords();
+		List<String> stopWords = algoHelper.getListOfDomainStopWords();
 
 		// ParagraphVectors training configuration
 		paragraphVectors = new ParagraphVectors.Builder().learningRate(LEARNING_RATE).iterations(80).seed(80)
@@ -98,7 +98,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -123,7 +123,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				//iterations 10 no seed -> 72
@@ -150,7 +150,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -176,7 +176,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -203,7 +203,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -229,7 +229,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -255,7 +255,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -281,7 +281,7 @@ public class Doc2VecGroupClassifier {
 			@Override
 			public void run() {
 				AlgorithmHelpers algoHelper = new AlgorithmHelpers();
-				List<String> stopWords = algoHelper.getListOfStopWords();
+				List<String> stopWords = algoHelper.getListOfDomainStopWords();
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
@@ -307,19 +307,19 @@ public class Doc2VecGroupClassifier {
 		// 1 2 5 6 7 -> 0.88 (top 5) 0.74 ( top 1) + 8 = 76
 		// 1 5 6 7 ->  0.9 (top 5) 0.72 ( top 1)
 		t1.start();
-//		t2.start();
+		t2.start();
 //		t3.start();
 //		t4.start();
 //		t5.start();
 		t6.start();
-//		t7.start();
+		t7.start();
 		t8.start();
 		try {
 			t1.join();
-			t2.join();
+//			t2.join();
 //			t3.join();
 //			t4.join();
-			t5.join();
+//			t5.join();
 			t6.join();
 			t7.join();
 			t8.join();
