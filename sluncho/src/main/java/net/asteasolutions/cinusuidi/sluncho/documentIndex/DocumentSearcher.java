@@ -64,7 +64,7 @@ public class DocumentSearcher {
 
             int numTotalHits = results.totalHits;
 
-            for(int i = 0; i < numTotalHits; i++) {
+            for(int i = 0; i < Integer.min(numTotalHits, 50); i++) {
                     Document doc = searcher.doc(hits[i].doc);
                     DocumentIndexEntry entity = new DocumentIndexEntry();
                     entity.type = doc.get("type");

@@ -175,6 +175,10 @@ public class QuestionRepository implements IDocumentRepository {
 		}
 		return result;
 	}
+        
+    public IDocumentRepository getTrainingSetRepository () {
+        return new ArrayRepository(oneOutRandomTrainingSet);
+    }
 	
     @Override
     public String[] getDocumentsRefs() throws IOException {

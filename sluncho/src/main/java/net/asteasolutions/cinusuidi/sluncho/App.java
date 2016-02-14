@@ -54,6 +54,13 @@ public class App
 
         //calculates probability for 3-grams
         ThreeGramProbabilityRepo.loadProbability();
+        
+                
+        OneOutValidation a = new OneOutValidation();
+
+//        System.out.println("###############################################");
+//        a.runFulltextClasifierRandomTest(5);
+//        System.out.println("###############################################");
          
         //saves information from xml file to the database
         //change the file location

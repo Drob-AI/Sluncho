@@ -52,7 +52,7 @@ public class DocumentIndex {
         try {
             Document doc = new Document();
             Field typeField = new StringField("type", entry.type, Field.Store.YES);
-            Field groupIdField = new StringField("groupId", entry.type, Field.Store.YES);
+            Field groupIdField = new StringField("groupId", entry.groupId, Field.Store.YES);
             Field questionIdField = new StringField("questionId", entry.questionId, Field.Store.YES);
             Field subjectField = new TextField("subject", entry.subject, Field.Store.YES);
             Field predicateField = new TextField("predicate", entry.predicate, Field.Store.YES);

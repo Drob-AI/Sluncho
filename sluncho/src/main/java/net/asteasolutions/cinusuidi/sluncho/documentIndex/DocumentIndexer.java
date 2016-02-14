@@ -118,10 +118,9 @@ public class DocumentIndexer {
             Iterator<QuestionAnswer> iter = qas.iterator();
 
             Out.println();
-            Out.println("#Parsing Doc ref:" + ref);
+            Out.println("#Parsing Doc ref:");
             while(iter.hasNext()) {
                 QuestionAnswer qa = iter.next();
-
                 indexQuestionPart(ref, qa.groupId, qa.answer, "0");
 //              indexQuestionPart(questionId, qa.context, "1");
                 indexQuestionPart(ref, qa.groupId, qa.question, "2");

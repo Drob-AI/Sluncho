@@ -49,7 +49,7 @@ public class FullTextSearcher {
 
             int numTotalHits = results.totalHits;
 
-            for(int i = 0; i < numTotalHits; i++) {
+            for(int i = 0; i < Math.min(numTotalHits, 50); i++) {
                     Document doc = searcher.doc(hits[i].doc);
                     DocumentIndexEntry entity = new DocumentIndexEntry();
                     entity.questionId = doc.get("questionId");
