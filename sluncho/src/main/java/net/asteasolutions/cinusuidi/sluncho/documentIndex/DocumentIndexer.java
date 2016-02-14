@@ -88,11 +88,12 @@ public class DocumentIndexer {
         return entr;
     }
     
-    public void indexSentance(String questionId, String sentance, String type) {
+    public void indexSentance(String questionId, String groupId, String sentance, String type) {
         try {
             //String[] sentences = StringUtils.split(qa.answer, ".!?");
             Query tokenizedSentance = questionParser.parse(sentance);
             DocumentIndexEntry entry = getIndexEntry(tokenizedSentance);
+            entry.groupId = groupId;
             entry.questionId = questionId;
             entry.type = type;
             Out.println("(" + entry.questionId + "," + entry.type + "," + entry.subject + "," + entry.predicate + "," + entry.additionGroup + ")");
@@ -102,10 +103,10 @@ public class DocumentIndexer {
         }
     }
     
-    public void indexQuestionPart(String questionId, String fullText, String type) {
+    public void indexQuestionPart(String questionId, String groupId, String fullText, String type) {
         String[] sentences = StringUtils.split(fullText, ".!?");
         for(int i = 0; i < sentences.length; i++) {
-            indexSentance(questionId, sentences[i], type);
+            indexSentance(questionId, groupId, sentences[i], type);
         }
     }
 
@@ -121,10 +122,10 @@ public class DocumentIndexer {
             while(iter.hasNext()) {
                 QuestionAnswer qa = iter.next();
 
-                indexQuestionPart(ref, qa.answer, "0");
+                indexQuestionPart(ref, qa.groupId, qa.answer, "0");
 //              indexQuestionPart(questionId, qa.context, "1");
-                indexQuestionPart(ref, qa.question, "2");
-                fullIdx.index(ref, qa.question, qa.answer, qa.context);
+                indexQuestionPart(ref, qa.groupId, qa.question, "2");
+                fullIdx.index(ref, qa.groupId, qa.question, qa.answer, qa.context);
 
                 
                 

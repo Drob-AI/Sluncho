@@ -39,6 +39,14 @@ public class RelevantQuestionsSentenceIterator implements LabelAwareSentenceIter
         position++;
         return ret;
 	}
+        
+        public String lastId() {
+            return questions.get(position - 1).getQuestionId();
+        }
+        
+        public String lastGroupId() {
+            return questions.get(position - 1).getQuestionId();
+        }
 
 	@Override
 	public boolean hasNext() {

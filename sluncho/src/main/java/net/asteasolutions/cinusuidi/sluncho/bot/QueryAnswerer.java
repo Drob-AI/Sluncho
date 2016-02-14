@@ -2,13 +2,16 @@ package net.asteasolutions.cinusuidi.sluncho.bot;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
@@ -24,21 +27,33 @@ public final class QueryAnswerer {
 //		questionHandlers.add(new HostnameHandler());
 //		questionHandlers.add(new AsteaEntitiesHandler());
                 questionHandlers.add(new SemanticRecognizer());
+                questionHandlers.add(new FullTextRecognizer());
+//              questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
 	public static QueryResult getQueryResult(Query query) {
 		ArrayList<Query> alternateQueries = postProcessQuery(query);
 
 		Iterator<Query> iter = alternateQueries.iterator();
+                
+                ArrayList<QuestionResult> results = new ArrayList<>();
 
 		while(iter.hasNext()) {
-			Query curQuery = iter.next();
-			System.out.println("Search for answer for query: " + query.orderedTokens);
-			ClassifiedResult result = getQueryAnswer(curQuery);
-			if(result != null && result.certainty() > 0) {
-                            return result.getQueryResult();
-                        }
+                    Query curQuery = iter.next();
+                    System.out.println("Search for answer for query: " + query.orderedTokens);
+                    List<QuestionResult> qResults = getQueryAnswer(curQuery);
+                    results.addAll(qResults);
 		}
+                
+                //VERY VERY IMPORTANT
+                //TODO: use some algorighm to determine this instead of taking the first element
+                QuestionResult qResult = results.get(0);
+                ClassifiedResult result = new ClassifiedResult(qResult);
+                //VERY VERY IMPORTANT
+                
+                if(result != null && result.certainty() > 0) {
+                    return result.getQueryResult();
+                }
 		
 		return new QueryResult(null, 0);
 	}
@@ -57,18 +72,21 @@ public final class QueryAnswerer {
 		return result;
 	}
 	
-	private static ClassifiedResult getQueryAnswer(Query query) {
+	private static List<QuestionResult> getQueryAnswer(Query query) {
 		Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
+                
+                ArrayList<QuestionResult> answers = new ArrayList<>();
 		
 		while(iter.hasNext()) {
                     IQuestionRecognizer recognizer = iter.next();
-                    QuestionResult currentResult = recognizer.classify(query);
-                    if(currentResult != null && currentResult.certainty() > 0) {
-                        return new ClassifiedResult(currentResult);
+                    List<QuestionResult> recognizerResults = recognizer.classify(query);
+                    //TODO: add some kind of normalization for scores here ?
+                    for (QuestionResult result: recognizerResults) {
+                        answers.add(result);
                     }
 		}
 		
-		return new ClassifiedResult(null);
+		return answers;
 	}
 	
 	private static class ClassifiedResult

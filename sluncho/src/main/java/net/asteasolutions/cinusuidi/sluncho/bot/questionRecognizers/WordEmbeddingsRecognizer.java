@@ -1,6 +1,7 @@
 package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import org.deeplearning4j.berkeley.Pair;
@@ -34,7 +35,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
     }
 	
 	@Override
-	public QuestionResult classify(Query query) {
+	public List<QuestionResult> classify(Query query) {
 		String queryPhrase = query.originalText;
 		
 		RelevantQuestionsSentenceIterator questionsIterator = new RelevantQuestionsSentenceIterator();
@@ -53,7 +54,9 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
         }
 		
 		Pair<String, Double> bestMatch = scores.peek();
-		return new QuestionResult(bestMatch.getFirst(), (float) (double) bestMatch.getSecond());
+                //SORRY SORRY SORRY SORRY
+//		return new QuestionResult(bestMatch.getFirst(), (float) (double) bestMatch.getSecond());
+                return null;
 	}
 	
 //	public static void main(String[] args) throws Exception {

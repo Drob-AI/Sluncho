@@ -10,6 +10,7 @@ package net.asteasolutions.cinusuidi.sluncho.documentIndex;
  * @author mihail
  */
 public class DocumentIndexEntry {
+    public String groupId;
     public String questionId;
     public String subject;
     public String predicate;
