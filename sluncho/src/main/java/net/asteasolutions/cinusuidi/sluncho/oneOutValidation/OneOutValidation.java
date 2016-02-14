@@ -183,8 +183,8 @@ public class OneOutValidation {
 	public static void main(String args[]) throws QuestionParserException {       
 		OneOutValidation a = new OneOutValidation();
                 
-                System.out.println("###############################################");
-                a.runSemanticClasifierRandomTest(5);
+        System.out.println("###############################################");
+        a.runSemanticClasifierRandomTest(5);
 		System.out.println("###############################################");
                 
 //		System.out.println("???????????????????????");
