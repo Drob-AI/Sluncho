@@ -2,7 +2,9 @@ package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Collections;
 import java.util.PriorityQueue;
 
@@ -26,7 +28,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 	private final static int VECTOR_LENGTH = 100;
 	private final static double LEARNING_RATE = 0.025f;
 	private final static int ITERATIONS = 1;
-	private final static int EPOCHS = 40;// 20;
+	private final static int EPOCHS = 20;// 20;
 	private final static int WIN_SIZE = 5;
 	private final static int MIN_WORD_FREQ = 2;
 	private final static long RANDOM_SEED = 42;
@@ -131,25 +133,8 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 //		updateMetrics(scoresTopAdditionGroup, scoresMultiplierAdditionGroup, scoresAdditionGroup, scores);
 //		updateMetrics(scoresTopSubjectGroup, scoresMultiplierSubjectGroup, scoresSubjectGroup, scores);
 		updateMetrics(scoresTopNNsAndJJsAndRBs, scoresMultiplierNNsAndJJsAndRBs, scoresNNsAndJJsAndRBs, scores);
-		
-		scores.sort(new Comparator<Pair<String, Double>>() {
-			public int compare(Pair<String, Double> pr1, Pair<String, Double> pr2) {
-				// we want the highest element (max. similar) at the top
-				return pr2.getSecond().compareTo(pr1.getSecond());
-			}
-		});
 
-//		Pair<String, Double> bestMatch = scores.get(0);
-//		System.out.println(bestMatch);
-		
-		
-		List<QuestionResult> bestScores = new ArrayList<>();
-		for (int i = 0; i < scoresTop && i < scores.size(); i++) {
-			String[] docNameAndGroupId = scores.get(i).getFirst().split(" : ", 2);
-			QuestionResult qr = new QuestionResult(docNameAndGroupId[1], docNameAndGroupId[0], (float) (double) scores.get(i).getSecond());
-			bestScores.add(qr);
-		}
-		return bestScores;
+		return getBest(scores);
 	}
 
 	private void updateMetrics(int topN, double multiplier, 
@@ -165,6 +150,45 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 			}
 		}
 	}
+	
+	private List<QuestionResult> getBest(List<Pair<String, Double>> scores) {
+		Map<String, Double> bestScoresGroupped = new HashMap<>();
+		for (Pair<String, Double> pair : scores) {
+			String[] docNameAndGroupId = pair.getFirst().split(" : ", 2);
+			Double maxValue = (Double) Math.max(
+					(double) bestScoresGroupped.getOrDefault(docNameAndGroupId[0], -1.0d),
+					(double) pair.getSecond());
+			bestScoresGroupped.put(docNameAndGroupId[0], maxValue);
+		}
+		
+		List<QuestionResult> result = new ArrayList<>();
+		for (String group : bestScoresGroupped.keySet()) {
+			result.add(new QuestionResult(group, group, (float) (double) bestScoresGroupped.get(group)));
+		}
+		result.sort(new Comparator<QuestionResult>() {
+			public int compare(QuestionResult qr1, QuestionResult qr2) {
+				// we want the highest element (max. similar) at the top
+				return ((Float) qr2.certainty()).compareTo((Float) qr1.certainty());
+			}
+		});
+		return result;
+	}
+	
+//	private List<QuestionResult> getBest(List<Pair<String, Double>> scores) {
+//		scores.sort(new Comparator<Pair<String, Double>>() {
+//			public int compare(Pair<String, Double> pr1, Pair<String, Double> pr2) {
+//				// we want the highest element (max. similar) at the top
+//				return pr2.getSecond().compareTo(pr1.getSecond());
+//			}
+//		});
+//		List<QuestionResult> bestScores = new ArrayList<>();
+//		for (int i = 0; i < scoresTop && i < scores.size(); i++) {
+//			String[] docNameAndGroupId = scores.get(i).getFirst().split(" : ", 2);
+//			QuestionResult qr = new QuestionResult(docNameAndGroupId[1], docNameAndGroupId[0], (float) (double) scores.get(i).getSecond());
+//			bestScores.add(qr);
+//		}
+//		return bestScores;
+//	}
 
 	// public static void main(String[] args) throws Exception {
 	// WordEmbeddingsRecognizer wer = new WordEmbeddingsRecognizer();
