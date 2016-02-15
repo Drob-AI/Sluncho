@@ -2,7 +2,7 @@ package net.asteasolutions.cinusuidi.sluncho.bot;
 
 public class QuestionResult {
 	private String documentName;
-        private String groupId;
+	private String groupId;
 	private float certainty;
 
 	public QuestionResult(String documentName,String groupId, float certainty) {

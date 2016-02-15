@@ -36,17 +36,17 @@ public final class QueryAnswerer {
 
 		Iterator<Query> iter = alternateQueries.iterator();
                 
-                ArrayList<QuestionResult> results = new ArrayList<>();
+		ArrayList<QuestionResult> results = new ArrayList<>();
 
-                //TODO: find these some better way
+        //TODO: find these some better way
 		while(iter.hasNext()) {
-                    Query curQuery = iter.next();
-                    System.out.println("Search for answer for query: " + query.orderedTokens);
-                    List<QuestionResult> qResults = getQueryAnswer(curQuery);
-                    results.addAll(qResults);
+            Query curQuery = iter.next();
+            System.out.println("Search for answer for query: " + query.orderedTokens);
+            List<QuestionResult> qResults = getQueryAnswer(curQuery);
+            results.addAll(qResults);
 		}
                
-                return results;
+        return results;
 	}
 	
 	private static ArrayList<Query> postProcessQuery(Query query) {
@@ -66,7 +66,7 @@ public final class QueryAnswerer {
 	private static List<QuestionResult> getQueryAnswer(Query query) {
 		Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
                 
-                ArrayList<QuestionResult> answers = new ArrayList<>();
+        ArrayList<QuestionResult> answers = new ArrayList<>();
 		
 		while(iter.hasNext()) {
                     IQuestionRecognizer recognizer = iter.next();

@@ -35,27 +35,7 @@ public class OneOutValidation {
 		QuestionRepository.Instance().extractRandomOneOutSet();
 		Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
 	}
-	public  void runDoc2vecClassifierFullTest(){
-		QuestionRepository.Instance().extractAllOneOutSets();
-		Integer success = new Integer(0);
-//		System.out.println(QuestionRepository.Instance().oneOutFullTrainingSets.size());
-		for (Map.Entry<String, List<Question>> entry : QuestionRepository.Instance().oneOutFullTrainingSets.entrySet()) {
-			String label = entry.getKey();
-		    List<Question> groupedQuestions = entry.getValue();
-		    
-		    Doc2VecGroupClassifier.trainWithQuestions(groupedQuestions);
-		    
-		    Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
-		    Question forTesting = QuestionRepository.Instance().oneOutFullTestingSet.get(label);
-		    String resultLabel = classifyer.classifyToGroup(forTesting).getFirst();
-		    if(resultLabel.equals(forTesting.getGroupId())){
-		    	success++;
-		    }
-		    Doc2VecGroupClassifier.reset();
-		}
-//		System.out.println(success/ (QuestionRepository.Instance().oneOutFullTestingSet.size()));
-	}
-	
+
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
@@ -182,22 +162,48 @@ public class OneOutValidation {
             System.out.println(precision.toString());
         }
     
-    public void runDoc2vecClassifierrRandomTest(Integer topNResults){
+    public void runDoc2vecClassifierrRandomTest(Integer topNResults) throws QuestionParserException{
         
         Integer success = new Integer(0);
-
+        
+        QueryAnswerer.questionHandlers = new ArrayList<>();
+        QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
+                
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-          Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
-          List<Pair<String, Double>> resultsLabel = classifyer.bagginClassifyToTopNGroups(forTesting, topNResults);
+            Query bquery = App.questionParser.parse(forTesting.getBody());
+//            Query squery = App.questionParser.parse(forTesting.getSubject());
+        
+            List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
+//          List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
+            
+            int checksRemaining = topNResults;
 
-     //       System.out.println("------------------------");
-          for(Pair<String, Double> labelResult: resultsLabel) {
-     //         System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
-            if(labelResult.getFirst().equals(forTesting.getGroupId())){
-                success++;
-              }
+            System.out.println("------------------------");
+            for(QuestionResult labelResult: bresult) {
+                if(checksRemaining == 0) break;
+                System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
+                if(labelResult.groupId().equals(forTesting.getGroupId())){
+                    success++;
+                    break;
+                }
+                checksRemaining--;
             }
+
         }
+        
+        
+//        for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
+//          Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
+//          List<QuestionResult> resultsLabel = classifyer.bagginClassifyToTopNGroups(forTesting, topNResults);
+//
+//     //       System.out.println("------------------------");
+//          for(QuestionResult labelResult: resultsLabel) {
+//     //         System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
+//            if(labelResult.groupId().equals(forTesting.getGroupId())){
+//                success++;
+//              }
+//            }
+//        }
         
         System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
 
@@ -206,7 +212,45 @@ public class OneOutValidation {
         System.out.println(precision.toString());
         
     }
-	public static void main(String args[]) throws QuestionParserException {       
+	
+    public void runFullSystemClassifierRandomTest(Integer topNResults) throws QuestionParserException {
+    	Integer success = new Integer(0);
+        
+        IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
+
+        IdentityDocumentParser idParser = new IdentityDocumentParser();
+
+        DocumentIndexer questionIndexer = new DocumentIndexer(trainingSet, idParser);
+        
+        questionIndexer.indexAll();
+        questionIndexer.close();
+        
+        for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
+            Query bquery = App.questionParser.parse(forTesting.getBody());
+            Query squery = App.questionParser.parse(forTesting.getSubject());
+        
+//            List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
+            List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
+            
+            int checksRemaining = topNResults;
+
+            System.out.println("------------------------");
+            for(QuestionResult labelResult: sresult) {
+                if(checksRemaining == 0) break;
+                System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
+                if(labelResult.groupId().equals(forTesting.getGroupId())){
+                    success++;
+                    break;
+                }
+                checksRemaining--;
+            }
+
+        }
+        
+        
+    }
+    
+    public static void main(String args[]) throws QuestionParserException {       
 		OneOutValidation a = new OneOutValidation();
 //		BeforeStartConfig.configSystemProperties();
 //        System.out.println("###############################################");
