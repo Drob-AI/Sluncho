@@ -58,13 +58,12 @@ public class OneOutValidation {
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
-		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer();
-//		List<Question> allRelQ = QuestionRepository.Instance().allRelevantQuestions;
-//	    WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(allRelQ);
+//		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer();
+		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(
+				QuestionRepository.Instance().oneOutRandomTrainingSet);
 		
 		for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-		    
-		    Query forTestingQuery = null;
+			Query forTestingQuery = null;
 			try {
 				forTestingQuery = App.questionParser.parse(forTesting.getBody());
 				POSPipelineProcessor proc = new POSPipelineProcessor();
