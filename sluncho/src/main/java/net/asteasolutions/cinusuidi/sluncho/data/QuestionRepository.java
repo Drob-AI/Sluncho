@@ -27,7 +27,7 @@ public class QuestionRepository implements IDocumentRepository {
         extractAllQuestions();
         extractAllLabels();
         
-        extractAllRelevantQuestions();
+        //extractAllRelevantQuestions();
     }
     
     public static QuestionRepository Instance() {
@@ -41,7 +41,7 @@ public class QuestionRepository implements IDocumentRepository {
 	public List<Question> allQuestions =  new ArrayList<>();
 	public List<String> labels = new ArrayList<>();
 
-	public List<Question> allRelevantQuestions = new ArrayList<>();
+	//public List<Question> allRelevantQuestions = new ArrayList<>();
 	
 	//needed for the full testing process
 	public HashMap<String, List<Question>> oneOutFullTrainingSets = new HashMap<>();
@@ -80,7 +80,7 @@ public class QuestionRepository implements IDocumentRepository {
         }
 	}
 	
-	public void extractAllRelevantQuestions() {		
+	/*public void extractAllRelevantQuestions() {		
  		if ( this.originalQuestions == null) {
  			this.extractOriginalQuestions();
  			this.extractAllLabels();
@@ -95,7 +95,7 @@ public class QuestionRepository implements IDocumentRepository {
         		}
         	}
         }
-	}
+	}*/
 	
 	public void extractAllLabels() {
 		if ( this.originalQuestions == null) {
@@ -111,6 +111,9 @@ public class QuestionRepository implements IDocumentRepository {
 		if ( this.originalQuestions == null) {
  			this.extractOriginalQuestions();
  		}
+		
+		oneOutFullTestingSet = new HashMap<>();
+		oneOutFullTrainingSets = new HashMap<>();
 		
 		HashMap<String, List<Question>> allQuestionsGrouped = new HashMap<>();
 		int maxSize = 0;
@@ -147,6 +150,9 @@ public class QuestionRepository implements IDocumentRepository {
  			extractOriginalQuestions();
  			extractAllQuestions();
  		}
+		
+		oneOutRandomTestingSet = new ArrayList<>();
+		oneOutRandomTestingSet = new ArrayList<>();
 		
 		HashMap<String, List<Question>> allQuestionsGrouped = new HashMap<>();
 		int maxSize = 0;

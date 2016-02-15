@@ -2,14 +2,18 @@ package net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Collections;
 import java.util.PriorityQueue;
 
 import org.deeplearning4j.berkeley.Pair;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
+import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.QuestionSentencePreProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.RelevantQuestionsSentenceIterator;
 import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.Word2Vec4Phrases;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
@@ -26,7 +30,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 	private final static int ITERATIONS = 1;
 	private final static int EPOCHS = 20;// 20;
 	private final static int WIN_SIZE = 5;
-	private final static int MIN_WORD_FREQ = 5;
+	private final static int MIN_WORD_FREQ = 2;
 	private final static long RANDOM_SEED = 42;
 
 	private Word2Vec4Phrases phraseComparator;
@@ -94,28 +98,31 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 		
 		// iterate through database entries
 		RelevantQuestionsSentenceIterator questionsIterator = new RelevantQuestionsSentenceIterator(allQ);
+		questionsIterator.setPreProcessor(new QuestionSentencePreProcessor());
+		queryPhrase = questionsIterator.getPreProcessor().preProcess(queryPhrase);
+		
 		while (questionsIterator.hasNext()) {
 			String question = questionsIterator.nextSentence();
 			String phrase = question;// .getContent();
 			String gid = questionsIterator.currentLabel();
-			double similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhrase.split(" "), phrase.split(" "));
+			double similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhrase.split("  *"), phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scores.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
 
 			// use other metrics also
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseAdditionGroup.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseAdditionGroup.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresAdditionGroup.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseSubjectGroup.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseSubjectGroup.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresSubjectGroup.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseNNsAndJJsAndRBs.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseNNsAndJJsAndRBs.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresNNsAndJJsAndRBs.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
@@ -123,27 +130,11 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 
 		
 		// use results in other queues to update the main one
-		updateMetrics(scoresTopAdditionGroup, scoresMultiplierAdditionGroup, scoresAdditionGroup, scores);
-		updateMetrics(scoresTopSubjectGroup, scoresMultiplierSubjectGroup, scoresSubjectGroup, scores);
+//		updateMetrics(scoresTopAdditionGroup, scoresMultiplierAdditionGroup, scoresAdditionGroup, scores);
+//		updateMetrics(scoresTopSubjectGroup, scoresMultiplierSubjectGroup, scoresSubjectGroup, scores);
 		updateMetrics(scoresTopNNsAndJJsAndRBs, scoresMultiplierNNsAndJJsAndRBs, scoresNNsAndJJsAndRBs, scores);
-		
-		scores.sort(new Comparator<Pair<String, Double>>() {
-			public int compare(Pair<String, Double> pr1, Pair<String, Double> pr2) {
-				// we want the highest element (max. similar) at the top
-				return pr2.getSecond().compareTo(pr1.getSecond());
-			}
-		});
 
-//		Pair<String, Double> bestMatch = scores.get(0);
-//		System.out.println(bestMatch);
-		
-		List<QuestionResult> bestScores = new ArrayList<>();
-		for (int i = 0; i < scoresTop && i < scores.size(); i++) {
-			String[] docNameAndGroupId = scores.get(i).getFirst().split(" : ", 2);
-			QuestionResult qr = new QuestionResult(docNameAndGroupId[1], docNameAndGroupId[0], (float) (double) scores.get(i).getSecond());
-			bestScores.add(qr);
-		}
-		return bestScores;
+		return getBest(scores);
 	}
 
 	private void updateMetrics(int topN, double multiplier, 
@@ -159,6 +150,45 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 			}
 		}
 	}
+	
+	private List<QuestionResult> getBest(List<Pair<String, Double>> scores) {
+		Map<String, Double> bestScoresGroupped = new HashMap<>();
+		for (Pair<String, Double> pair : scores) {
+			String[] docNameAndGroupId = pair.getFirst().split(" : ", 2);
+			Double maxValue = (Double) Math.max(
+					(double) bestScoresGroupped.getOrDefault(docNameAndGroupId[0], -1.0d),
+					(double) pair.getSecond());
+			bestScoresGroupped.put(docNameAndGroupId[0], maxValue);
+		}
+		
+		List<QuestionResult> result = new ArrayList<>();
+		for (String group : bestScoresGroupped.keySet()) {
+			result.add(new QuestionResult(group, group, (float) (double) bestScoresGroupped.get(group)));
+		}
+		result.sort(new Comparator<QuestionResult>() {
+			public int compare(QuestionResult qr1, QuestionResult qr2) {
+				// we want the highest element (max. similar) at the top
+				return ((Float) qr2.certainty()).compareTo((Float) qr1.certainty());
+			}
+		});
+		return result;
+	}
+	
+//	private List<QuestionResult> getBest(List<Pair<String, Double>> scores) {
+//		scores.sort(new Comparator<Pair<String, Double>>() {
+//			public int compare(Pair<String, Double> pr1, Pair<String, Double> pr2) {
+//				// we want the highest element (max. similar) at the top
+//				return pr2.getSecond().compareTo(pr1.getSecond());
+//			}
+//		});
+//		List<QuestionResult> bestScores = new ArrayList<>();
+//		for (int i = 0; i < scoresTop && i < scores.size(); i++) {
+//			String[] docNameAndGroupId = scores.get(i).getFirst().split(" : ", 2);
+//			QuestionResult qr = new QuestionResult(docNameAndGroupId[1], docNameAndGroupId[0], (float) (double) scores.get(i).getSecond());
+//			bestScores.add(qr);
+//		}
+//		return bestScores;
+//	}
 
 	// public static void main(String[] args) throws Exception {
 	// WordEmbeddingsRecognizer wer = new WordEmbeddingsRecognizer();

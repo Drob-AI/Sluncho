@@ -57,7 +57,6 @@ public class App
         
                 
 //        OneOutValidation a = new OneOutValidation();
-
 //        System.out.println("###############################################");
 //        a.runFulltextClasifierRandomTest(5);
 //        System.out.println("###############################################");
