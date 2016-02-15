@@ -1,6 +1,7 @@
 package net.asteasolutions.cinusuidi.sluncho.bot;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
@@ -44,18 +45,34 @@ public final class QueryAnswerer {
             System.out.println("Search for answer for query: " + query.orderedTokens);
             List<QuestionResult> qResults = getQueryAnswer(curQuery);
             if(results.size() == 0){
+            	for(int i = 0; i < qResults.size(); i++) {
+            		qResults.get(i).votes = (qResults.size() - i);
+            	}
             	results.addAll(qResults);
             } else {
 	            for(QuestionResult foundResult: results) {
-	            	for(QuestionResult newResult: results) {
+	            	int i = 0;
+	            	for(QuestionResult newResult: qResults) {
 	            		if (foundResult.groupId().equals(newResult.groupId())) {
-	            			foundResult.setCertainty(foundResult.certainty() + newResult.certainty());
+	            			foundResult.votes += (qResults.size()  - i);
 	            		}
+	            		i++;
 	            	}
 	            }
             }
 		}
-               
+        
+		results.sort(new Comparator<QuestionResult>() {
+
+			@Override
+			public int compare(QuestionResult o1, QuestionResult o2) {
+				if(o1.certainty() ==  o2.certainty())
+					return 0;
+				
+				return o1.certainty() > o2.certainty() ? -1 : 1;
+			}
+		});
+		
         return results;
 	}
 	
@@ -79,12 +96,12 @@ public final class QueryAnswerer {
         ArrayList<QuestionResult> answers = new ArrayList<>();
 		
 		while(iter.hasNext()) {
-                    IQuestionRecognizer recognizer = iter.next();
-                    List<QuestionResult> recognizerResults = recognizer.classify(query);
-                    //TODO: add some kind of normalization for scores here ?
-                    for (QuestionResult result: recognizerResults) {
-                        answers.add(result);
-                    }
+            IQuestionRecognizer recognizer = iter.next();
+            List<QuestionResult> recognizerResults = recognizer.classify(query);
+            //TODO: add some kind of normalization for scores here ?
+            for (QuestionResult result: recognizerResults) {
+                answers.add(result);
+            }
 		}
 		
 		return answers;

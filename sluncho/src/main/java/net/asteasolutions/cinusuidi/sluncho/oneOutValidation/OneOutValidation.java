@@ -232,49 +232,30 @@ public class OneOutValidation {
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
             Query bquery = App.questionParser.parse(forTesting.getBody());
             Query squery = App.questionParser.parse(forTesting.getSubject());
-        
-//            List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
-            List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
+            System.err.println(forTesting.getSubject());
             
+            List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
+            List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
             int checksRemaining = topNResults;
 
             System.out.println("------------------------");
-            for(QuestionResult labelResult: sresult) {
+            for(QuestionResult labelResult: bresult) {
                 if(checksRemaining == 0) break;
-                System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
+                
+                System.out.println(labelResult.groupId()+ ": "  + labelResult.votes);
+                
                 if(labelResult.groupId().equals(forTesting.getGroupId())){
                     success++;
                     break;
                 }
                 checksRemaining--;
-            }
-            
-            System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
-
-            BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
-            BigDecimal precision = new BigDecimal(success).divide(all);
-            System.out.println(precision.toString());
-            
-
+            }   
         }
         
-        
+        System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+        BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
+        BigDecimal precision = new BigDecimal(success).divide(all);
+        System.out.println(precision.toString());
     }
-    
-    public static void main(String args[]) throws QuestionParserException {       
-		OneOutValidation a = new OneOutValidation();
-//		BeforeStartConfig.configSystemProperties();
-//        System.out.println("###############################################");
-//        a.runWordEmbeddingsClassifierrRandomTest(5);
-//		System.out.println("###############################################");
-                
-		System.out.println("???????????????????????");
-		System.out.println("Top 5:");
-		a.runFullSystemClassifierRandomTest(5);
-		System.out.println("??????????????????????");
-		System.out.println("Top 1:");
-//		a.runFullSystemClassifierRandomTest(1);
-		Doc2VecGroupClassifier.reset();
-	}
 	
 }
