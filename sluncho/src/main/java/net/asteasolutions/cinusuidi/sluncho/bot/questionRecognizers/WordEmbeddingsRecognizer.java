@@ -28,7 +28,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 	private final static int ITERATIONS = 1;
 	private final static int EPOCHS = 20;// 20;
 	private final static int WIN_SIZE = 5;
-	private final static int MIN_WORD_FREQ = 5;
+	private final static int MIN_WORD_FREQ = 2;
 	private final static long RANDOM_SEED = 42;
 
 	private Word2Vec4Phrases phraseComparator;

@@ -56,8 +56,7 @@ public class App
         ThreeGramProbabilityRepo.loadProbability();
         
                 
-        OneOutValidation a = new OneOutValidation();
-
+//        OneOutValidation a = new OneOutValidation();
 //        System.out.println("###############################################");
 //        a.runFulltextClasifierRandomTest(5);
 //        System.out.println("###############################################");
@@ -72,7 +71,7 @@ public class App
         QuestionRepository repo = QuestionRepository.Instance();
         
         OneOutValidation testUnit = new OneOutValidation();
-//        testUnit.runDoc2vecClassifierrRandomTest(1);
+//      testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest(); 
         testUnit.runWordEmbeddingsClassifierrRandomTest(5);
         /*

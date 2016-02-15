@@ -58,8 +58,9 @@ public class OneOutValidation {
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
-		List<Question> allRelQ = QuestionRepository.Instance().allRelevantQuestions;
-	    WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(allRelQ);
+		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer();
+//		List<Question> allRelQ = QuestionRepository.Instance().allRelevantQuestions;
+//	    WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(allRelQ);
 		
 		for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
 		    
@@ -88,6 +89,7 @@ public class OneOutValidation {
 		    
 		}
 		System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+		//List<Question> ts = QuestionRepository.Instance().oneOutRandomTestingSet;
 		
 		BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
 		BigDecimal precision = new BigDecimal(success).divide(all);
