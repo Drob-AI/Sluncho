@@ -87,7 +87,7 @@ public class QuestionRepository implements IDocumentRepository {
  		}
  		
  		for(Question question: this.originalQuestions) {
- 			//allQuestions.add(question);
+ 			allQuestions.add(question);
         	List<Question> relQuestions = mongoConnection.getAllRelevantQuestions(question.getGroupId());
         	for(Question relQuestion: relQuestions) {
         		if(!relQuestion.getIsRelevantToOriginalQuestion().equals("Irrelevant")) {

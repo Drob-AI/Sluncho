@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.asteasolutions.cinusuidi.sluncho.App;
+import net.asteasolutions.cinusuidi.sluncho.BeforeStartConfig;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QueryAnswerer;
 import net.asteasolutions.cinusuidi.sluncho.bot.QueryResult;
@@ -32,7 +33,7 @@ public class OneOutValidation {
 	//this could take hours: 
 	public OneOutValidation() {
 		QuestionRepository.Instance().extractRandomOneOutSet();
-		//Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
+		Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
 	}
 	public  void runDoc2vecClassifierFullTest(){
 		QuestionRepository.Instance().extractAllOneOutSets();
@@ -93,50 +94,51 @@ public class OneOutValidation {
 		System.out.println(precision.toString());
 	}
         
-        public void runSemanticClasifierRandomTest(int topNResults) throws QuestionParserException {
-            Integer success = new Integer(0);
-            
-            IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
-	
-            IdentityDocumentParser idParser = new IdentityDocumentParser();
+    public void runSemanticClasifierRandomTest(int topNResults) throws QuestionParserException {
+        Integer success = new Integer(0);
+        
+        IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
 
-            DocumentIndexer questionIndexer = new DocumentIndexer(trainingSet, idParser);
-            
-            questionIndexer.indexAll();
-            questionIndexer.close();
-            
-            QueryAnswerer.questionHandlers = new ArrayList<>();
-            QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
+        IdentityDocumentParser idParser = new IdentityDocumentParser();
 
-            for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-                Query bquery = App.questionParser.parse(forTesting.getBody());
-                Query squery = App.questionParser.parse(forTesting.getSubject());
-            
+        DocumentIndexer questionIndexer = new DocumentIndexer(trainingSet, idParser);
+        
+        questionIndexer.indexAll();
+        questionIndexer.close();
+        
+        QueryAnswerer.questionHandlers = new ArrayList<>();
+        QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
+
+        for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
+            Query bquery = App.questionParser.parse(forTesting.getBody());
+            Query squery = App.questionParser.parse(forTesting.getSubject());
+        
 //                List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
-                List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
-                
-                int checksRemaining = topNResults;
-
-                System.out.println("------------------------");
-                for(QuestionResult labelResult: sresult) {
-                    if(checksRemaining == 0) break;
-                    System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
-                    if(labelResult.groupId().equals(forTesting.getGroupId())){
-                        success++;
-                    }
-                    checksRemaining--;
-                }
-
-            }
+            List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
             
-            System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+            int checksRemaining = topNResults;
 
-            BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
-            BigDecimal precision = new BigDecimal(success).divide(all);
-            System.out.println(precision.toString());
+            System.out.println("------------------------");
+            for(QuestionResult labelResult: sresult) {
+                if(checksRemaining == 0) break;
+                System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
+                if(labelResult.groupId().equals(forTesting.getGroupId())){
+                    success++;
+                }
+                checksRemaining--;
+            }
+
         }
         
-        public void runFulltextClasifierRandomTest(int topNResults) throws QuestionParserException {
+        System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+
+        BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
+        BigDecimal precision = new BigDecimal(success).divide(all);
+        System.out.println(precision.toString());
+    }
+    
+    public void runFulltextClasifierRandomTest(int topNResults) throws QuestionParserException {
+    
             Integer success = new Integer(0);
             
             IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
@@ -179,21 +181,45 @@ public class OneOutValidation {
             BigDecimal precision = new BigDecimal(success).divide(all);
             System.out.println(precision.toString());
         }
+    
+    public void runDoc2vecClassifierrRandomTest(Integer topNResults){
+        
+        Integer success = new Integer(0);
 
+        for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
+          Doc2VecGroupClassifier classifyer = new Doc2VecGroupClassifier();
+          List<Pair<String, Double>> resultsLabel = classifyer.bagginClassifyToTopNGroups(forTesting, topNResults);
+
+     //       System.out.println("------------------------");
+          for(Pair<String, Double> labelResult: resultsLabel) {
+     //         System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
+            if(labelResult.getFirst().equals(forTesting.getGroupId())){
+                success++;
+              }
+            }
+        }
+        
+        System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+
+        BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
+        BigDecimal precision = new BigDecimal(success).divide(all);
+        System.out.println(precision.toString());
+        
+    }
 	public static void main(String args[]) throws QuestionParserException {       
 		OneOutValidation a = new OneOutValidation();
+//		BeforeStartConfig.configSystemProperties();
+//        System.out.println("###############################################");
+//        a.runWordEmbeddingsClassifierrRandomTest(5);
+//		System.out.println("###############################################");
                 
-        System.out.println("###############################################");
-        a.runSemanticClasifierRandomTest(5);
-		System.out.println("###############################################");
-                
-//		System.out.println("???????????????????????");
-//		System.out.println("Top 5:");
-//		a.runDoc2vecClassifierrRandomTest(5);
-//		System.out.println("??????????????????????");
-//		System.out.println("Top 1:");
-//		a.runDoc2vecClassifierrRandomTest(1);
-//		Doc2VecGroupClassifier.reset();
+		System.out.println("???????????????????????");
+		System.out.println("Top 5:");
+		a.runDoc2vecClassifierrRandomTest(5);
+		System.out.println("??????????????????????");
+		System.out.println("Top 1:");
+		a.runDoc2vecClassifierrRandomTest(1);
+		Doc2VecGroupClassifier.reset();
 	}
 	
 }

@@ -154,12 +154,12 @@ public class Doc2VecGroupClassifier {
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
-						.learningRate(0.05)
-		                .minLearningRate(0.01)
-		                .iterations(50)
-		                .seed(20)
+						.learningRate(0.0005)
+		                .minLearningRate(0.0001)
+		                .iterations(2000)
+		                .seed(3)
 		                .batchSize(100)
-		                .epochs(20)
+		                .epochs(200)
 		                .stopWords(stopWords)
 		                .iterate(iter)
 		                .trainWordVectors(true)
@@ -306,23 +306,23 @@ public class Doc2VecGroupClassifier {
 		// 1 2 5 6   -> 0.9 (top 5) 0.7 ( top 1)
 		// 1 2 5 6 7 -> 0.88 (top 5) 0.74 ( top 1) + 8 = 76
 		// 1 5 6 7 ->  0.9 (top 5) 0.72 ( top 1)
-		t1.start();
-		t2.start();
-//		t3.start();
+//		t1.start();
+//		t2.start();
+		t3.start();
 //		t4.start();
 //		t5.start();
-		t6.start();
-		t7.start();
-		t8.start();
+//		t6.start();
+//		t7.start();
+//		t8.start();
 		try {
-			t1.join();
+//			t1.join();
 //			t2.join();
-//			t3.join();
+			t3.join();
 //			t4.join();
 //			t5.join();
-			t6.join();
-			t7.join();
-			t8.join();
+//			t6.join();
+//			t7.join();
+//			t8.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
