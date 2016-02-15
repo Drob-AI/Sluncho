@@ -26,7 +26,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 	private final static int VECTOR_LENGTH = 100;
 	private final static double LEARNING_RATE = 0.025f;
 	private final static int ITERATIONS = 1;
-	private final static int EPOCHS = 20;// 20;
+	private final static int EPOCHS = 40;// 20;
 	private final static int WIN_SIZE = 5;
 	private final static int MIN_WORD_FREQ = 2;
 	private final static long RANDOM_SEED = 42;
@@ -128,8 +128,8 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 
 		
 		// use results in other queues to update the main one
-		updateMetrics(scoresTopAdditionGroup, scoresMultiplierAdditionGroup, scoresAdditionGroup, scores);
-		updateMetrics(scoresTopSubjectGroup, scoresMultiplierSubjectGroup, scoresSubjectGroup, scores);
+//		updateMetrics(scoresTopAdditionGroup, scoresMultiplierAdditionGroup, scoresAdditionGroup, scores);
+//		updateMetrics(scoresTopSubjectGroup, scoresMultiplierSubjectGroup, scoresSubjectGroup, scores);
 		updateMetrics(scoresTopNNsAndJJsAndRBs, scoresMultiplierNNsAndJJsAndRBs, scoresNNsAndJJsAndRBs, scores);
 		
 		scores.sort(new Comparator<Pair<String, Double>>() {

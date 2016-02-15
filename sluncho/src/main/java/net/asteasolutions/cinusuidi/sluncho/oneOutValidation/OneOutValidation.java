@@ -83,13 +83,12 @@ public class OneOutValidation {
 //		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
 		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
-			    	break;
 			    }
+		    	System.out.println("success++: " + success);
 		    }
 		    
 		}
 		System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
-		//List<Question> ts = QuestionRepository.Instance().oneOutRandomTestingSet;
 		
 		BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
 		BigDecimal precision = new BigDecimal(success).divide(all);
