@@ -43,7 +43,17 @@ public final class QueryAnswerer {
             Query curQuery = iter.next();
             System.out.println("Search for answer for query: " + query.orderedTokens);
             List<QuestionResult> qResults = getQueryAnswer(curQuery);
-            results.addAll(qResults);
+            if(results.size() == 0){
+            	results.addAll(qResults);
+            } else {
+	            for(QuestionResult foundResult: results) {
+	            	for(QuestionResult newResult: results) {
+	            		if (foundResult.groupId().equals(newResult.groupId())) {
+	            			foundResult.setCertainty(foundResult.certainty() + newResult.certainty());
+	            		}
+	            	}
+	            }
+            }
 		}
                
         return results;

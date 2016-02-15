@@ -225,6 +225,10 @@ public class OneOutValidation {
         questionIndexer.indexAll();
         questionIndexer.close();
         
+        QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
+        QueryAnswerer.questionHandlers.add(new FullTextRecognizer());
+        QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
+        
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
             Query bquery = App.questionParser.parse(forTesting.getBody());
             Query squery = App.questionParser.parse(forTesting.getSubject());
@@ -244,6 +248,13 @@ public class OneOutValidation {
                 }
                 checksRemaining--;
             }
+            
+            System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
+
+            BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
+            BigDecimal precision = new BigDecimal(success).divide(all);
+            System.out.println(precision.toString());
+            
 
         }
         
@@ -259,10 +270,10 @@ public class OneOutValidation {
                 
 		System.out.println("???????????????????????");
 		System.out.println("Top 5:");
-		a.runDoc2vecClassifierrRandomTest(5);
+		a.runFullSystemClassifierRandomTest(5);
 		System.out.println("??????????????????????");
 		System.out.println("Top 1:");
-		a.runDoc2vecClassifierrRandomTest(1);
+//		a.runFullSystemClassifierRandomTest(1);
 		Doc2VecGroupClassifier.reset();
 	}
 	

@@ -15,11 +15,15 @@ public class QuestionResult {
             return documentName;
 	}
 	
-        public String groupId() {
-            return groupId;
-        }
+    public String groupId() {
+        return groupId;
+    }
         
 	public float certainty() {
             return certainty;
+	}
+	
+	public void setCertainty(float newCertainty) {
+        certainty = newCertainty;
 	}
 }
