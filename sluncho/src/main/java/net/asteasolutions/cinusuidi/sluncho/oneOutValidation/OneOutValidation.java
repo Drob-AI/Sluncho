@@ -65,7 +65,7 @@ public class OneOutValidation {
 		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
 			    }
-		    	System.out.println("success++: " + success);
+		    	//System.out.println("success++: " + success);
 		    }
 		    
 		}
@@ -226,9 +226,11 @@ public class OneOutValidation {
         questionIndexer.indexAll();
         questionIndexer.close();
         
+        // assemble Voltron !!!...
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
         QueryAnswerer.questionHandlers.add(new FullTextRecognizer());
         QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
+        QueryAnswerer.questionHandlers.add(new WordEmbeddingsRecognizer(QuestionRepository.Instance().oneOutRandomTrainingSet));
         
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
             CompositeQuery bquery = App.questionParser.parseAll(forTesting.getBody() + "." + forTesting.getSubject());
