@@ -34,7 +34,7 @@ public class OneOutValidation {
 	//this could take hours: 
 	public OneOutValidation() {
 		QuestionRepository.Instance().extractRandomOneOutSet();
-//		Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
+		Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().oneOutRandomTrainingSet);
 	}
 
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
