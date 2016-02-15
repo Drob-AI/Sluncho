@@ -73,7 +73,7 @@ public class App
         
         OneOutValidation testUnit = new OneOutValidation();
 //        testUnit.runDoc2vecClassifierrRandomTest(1);
-        testUnit.runFullSystemClassifierRandomTest(1);
+        testUnit.runFullSystemClassifierRandomTest(3);
 //        testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest(); 
 //        testUnit.runWordEmbeddingsClassifierrRandomTest(5);

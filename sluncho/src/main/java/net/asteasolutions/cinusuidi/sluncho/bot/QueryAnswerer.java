@@ -69,7 +69,7 @@ public final class QueryAnswerer {
 				if(o1.certainty() ==  o2.certainty())
 					return 0;
 				
-				return o1.certainty() > o2.certainty() ? -1 : 1;
+				return o1.votes > o2.votes ? -1 : 1;
 			}
 		});
 		
