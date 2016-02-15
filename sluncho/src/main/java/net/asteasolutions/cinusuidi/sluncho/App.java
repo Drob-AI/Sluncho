@@ -71,9 +71,11 @@ public class App
         QuestionRepository repo = QuestionRepository.Instance();
         
         OneOutValidation testUnit = new OneOutValidation();
-//      testUnit.runDoc2vecClassifierrRandomTest(1);
+//        testUnit.runDoc2vecClassifierrRandomTest(1);
+        testUnit.runFullSystemClassifierRandomTest(3);
+//        testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest(); 
-        testUnit.runWordEmbeddingsClassifierrRandomTest(1);
+//        testUnit.runWordEmbeddingsClassifierrRandomTest(5);
         /*
         
       

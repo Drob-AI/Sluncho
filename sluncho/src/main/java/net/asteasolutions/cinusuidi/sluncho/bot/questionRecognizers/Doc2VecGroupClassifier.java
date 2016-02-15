@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
+import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.LabelSeeker;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.MeansBuilder;
 import net.asteasolutions.cinusuidi.sluncho.bot.doc2vecClassifierUtils.RelevantQuestionsIterator;
@@ -48,7 +49,7 @@ import java.util.Map.Entry;
  *
  * @author raver119@gmail.com
  */
-public class Doc2VecGroupClassifier {
+public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 
 	private static final Logger log = LoggerFactory.getLogger(ParagraphVectorsClassifierExample.class);
 	public static ParagraphVectors paragraphVectors;
@@ -154,12 +155,12 @@ public class Doc2VecGroupClassifier {
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
-						.learningRate(0.05)
-		                .minLearningRate(0.01)
-		                .iterations(50)
-		                .seed(20)
+						.learningRate(0.0005)
+		                .minLearningRate(0.0001)
+		                .iterations(2000)
+		                .seed(3)
 		                .batchSize(100)
-		                .epochs(20)
+		                .epochs(200)
 		                .stopWords(stopWords)
 		                .iterate(iter)
 		                .trainWordVectors(true)
@@ -306,12 +307,12 @@ public class Doc2VecGroupClassifier {
 		// 1 2 5 6   -> 0.9 (top 5) 0.7 ( top 1)
 		// 1 2 5 6 7 -> 0.88 (top 5) 0.74 ( top 1) + 8 = 76
 		// 1 5 6 7 ->  0.9 (top 5) 0.72 ( top 1)
-		t1.start();
-		t2.start();
+//		t1.start();
+//		t2.start();
 //		t3.start();
 //		t4.start();
 //		t5.start();
-		t6.start();
+//		t6.start();
 		t7.start();
 		t8.start();
 		try {
@@ -320,7 +321,7 @@ public class Doc2VecGroupClassifier {
 //			t3.join();
 //			t4.join();
 //			t5.join();
-			t6.join();
+//			t6.join();
 			t7.join();
 			t8.join();
 		} catch (InterruptedException e) {
@@ -371,14 +372,14 @@ public class Doc2VecGroupClassifier {
 		return seeker.getMaxNScores(documentAsCentroid, n);
 	}
 
-	private List<Pair<String, Double>> getBest(Map<String, Double> summary, Integer n) {
+	private List<QuestionResult> getBest(Map<String, Double> summary, Integer n) {
 		Comparator<Entry<String, Double>> compare = new Comparator<Entry<String, Double>>() {
 			public int compare(Entry<String, Double> first, Entry<String, Double> second) {
 				return first.getValue() > second.getValue() ? -1 : 1;
 			}
 		};
 		
-		List<Pair<String, Double>> result = new ArrayList<>();
+		List<QuestionResult> result = new ArrayList<>();
 		PriorityQueue<Entry<String, Double>> heap = new PriorityQueue<Entry<String, Double>>(n, compare);
 		
 		for (Entry<String, Double> entry : summary.entrySet()) {
@@ -387,13 +388,35 @@ public class Doc2VecGroupClassifier {
 		
 		while(!heap.isEmpty() && n > 0) {
 			Entry<String, Double> forParsing = heap.remove();
-			result.add(new Pair<String, Double>(forParsing.getKey(), forParsing.getValue()));
+			result.add(new QuestionResult(forParsing.getKey(), forParsing.getKey(), forParsing.getValue().floatValue()));
 			n--;
 		}
 		return result;
 	}
+	
+	private List<QuestionResult> getBest(Map<String, Double> summary) {
+		Comparator<Entry<String, Double>> compare = new Comparator<Entry<String, Double>>() {
+			public int compare(Entry<String, Double> first, Entry<String, Double> second) {
+				return first.getValue() > second.getValue() ? -1 : 1;
+			}
+		};
+		
+		List<QuestionResult> result = new ArrayList<>();
+		PriorityQueue<Entry<String, Double>> heap = new PriorityQueue<Entry<String, Double>>(100, compare);
+		
+		for (Entry<String, Double> entry : summary.entrySet()) {
+			heap.add(entry);
+		}
+		
+		while(!heap.isEmpty()) {
+			Entry<String, Double> forParsing = heap.remove();
+			result.add(new QuestionResult(forParsing.getKey(), forParsing.getKey(), forParsing.getValue().floatValue()));
+		}
+		return result;
+	}
 
-	public List<Pair<String, Double>> bagginClassifyToTopNGroups(Question query, Integer n) {
+	
+	public List<QuestionResult> bagginClassifyToTopNGroups(Question query, Integer n) {
 		
 		Map<String, Double> summaryResults = new HashMap<>();
 		System.out.println("Sizeee" + bagOfClassifiers.size());
@@ -420,7 +443,38 @@ public class Doc2VecGroupClassifier {
 
 		return getBest(summaryResults, n);
 	}
+	
 
+	@Override
+	public List<QuestionResult> classify(Query query) {
+
+		Map<String, Double> summaryResults = new HashMap<>();
+//		System.out.println("Sizeee" + bagOfClassifiers.size());
+		
+		for (ParagraphVectors claasifier : bagOfClassifiers) {
+			MeansBuilder meansBuilder = new MeansBuilder((InMemoryLookupTable<VocabWord>) claasifier.getLookupTable(), tokenizer);
+			LabelSeeker seeker = new LabelSeeker(iterator.getLabelsSource().getLabels(),
+					(InMemoryLookupTable<VocabWord>) claasifier.getLookupTable());
+
+			LabelledDocument queryDoc = new LabelledDocument();
+			queryDoc.setContent(query.originalText);
+			INDArray documentAsCentroid = meansBuilder.documentAsVector(queryDoc);
+
+			Map<String, Double> results = seeker.getScoresAsMap(documentAsCentroid);
+
+			for (Entry<String, Double> entry : results.entrySet()) {
+				String label = entry.getKey();
+				Double value = entry.getValue();
+				
+				Double oldValue = summaryResults.getOrDefault(label, 0.0);
+				summaryResults.put(label, oldValue + value);
+			}
+		}
+
+		return getBest(summaryResults);
+	}
+	
+	
 	// public static void main(String[] args) throws Exception {
 	// java.util.Iterator<Object> iter =
 	// EnglishAnalyzer.getDefaultStopSet().iterator();
