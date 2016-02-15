@@ -18,6 +18,8 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
 import java.util.List;
+
+import net.asteasolutions.cinusuidi.sluncho.model.Comment;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 public class MongoDBFacade {
@@ -67,6 +69,12 @@ public class MongoDBFacade {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
 
         qaCollection.insertOne(question.toJSON());
+    }
+    
+    public void createXmlComment(Comment comment) {
+        MongoCollection<Document> comCollection = slunchoDB.getCollection("XmlComments");
+
+        comCollection.insertOne(comment.toJSON());
     }
 
     public Document getXmlDocument(String id) {
