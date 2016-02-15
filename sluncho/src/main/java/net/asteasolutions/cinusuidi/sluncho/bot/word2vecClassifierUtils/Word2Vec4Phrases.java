@@ -1,6 +1,7 @@
 package net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils;
 
 import java.awt.image.LookupTable;
+import java.util.List;
 
 import org.deeplearning4j.models.embeddings.WeightLookupTable;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -16,6 +17,8 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
+
+import net.asteasolutions.cinusuidi.sluncho.utils.AlgorithmHelpers;
 
 public class Word2Vec4Phrases {
 	
@@ -61,6 +64,9 @@ public class Word2Vec4Phrases {
         this.t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
+        AlgorithmHelpers algoHelper = new AlgorithmHelpers();
+		List<String> stopWords = algoHelper.getListOfDomainStopWords();
+        
         // manual creation of VocabCache and WeightLookupTable usually isn't necessary
         // but in this case we'll need them
         this.cache = new InMemoryLookupCache();
@@ -76,6 +82,7 @@ public class Word2Vec4Phrases {
                 .epochs(EPOCHS)
                 .layerSize(VECTOR_LENGTH)
                 .seed(RANDOM_SEED)
+				.stopWords(stopWords)
                 .windowSize(WIN_SIZE)
                 .iterate(iter)
                 .tokenizerFactory(t)

@@ -82,6 +82,7 @@ public class OneOutValidation {
 //		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
 		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
+			    	break;
 			    }
 		    }
 		    

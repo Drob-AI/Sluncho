@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.PriorityQueue;
 
 import org.deeplearning4j.berkeley.Pair;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
+import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.QuestionSentencePreProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.RelevantQuestionsSentenceIterator;
 import net.asteasolutions.cinusuidi.sluncho.bot.word2vecClassifierUtils.Word2Vec4Phrases;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
@@ -94,28 +96,31 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 		
 		// iterate through database entries
 		RelevantQuestionsSentenceIterator questionsIterator = new RelevantQuestionsSentenceIterator(allQ);
+		questionsIterator.setPreProcessor(new QuestionSentencePreProcessor());
+		queryPhrase = questionsIterator.getPreProcessor().preProcess(queryPhrase);
+		
 		while (questionsIterator.hasNext()) {
 			String question = questionsIterator.nextSentence();
 			String phrase = question;// .getContent();
 			String gid = questionsIterator.currentLabel();
-			double similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhrase.split(" "), phrase.split(" "));
+			double similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhrase.split("  *"), phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scores.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
 
 			// use other metrics also
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseAdditionGroup.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseAdditionGroup.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresAdditionGroup.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseSubjectGroup.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseSubjectGroup.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresSubjectGroup.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
-			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseNNsAndJJsAndRBs.split(" "),
-					phrase.split(" "));
+			similarity = phraseComparator.cosineSimilarityPhraseVec(queryPhraseNNsAndJJsAndRBs.split("  *"),
+					phrase.split("  *"));
 			if (similarity > this.threshold) {
 				scoresNNsAndJJsAndRBs.add(new Pair<String, Double>(gid + " : " + question, similarity));
 			}
@@ -136,6 +141,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 
 //		Pair<String, Double> bestMatch = scores.get(0);
 //		System.out.println(bestMatch);
+		
 		
 		List<QuestionResult> bestScores = new ArrayList<>();
 		for (int i = 0; i < scoresTop && i < scores.size(); i++) {
