@@ -13,6 +13,7 @@ import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.BagOfWordsCl
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 //import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
@@ -31,7 +32,7 @@ public final class QueryAnswerer {
                 questionHandlers.add(new SemanticRecognizer());
                 questionHandlers.add(new FullTextRecognizer());
                 questionHandlers.add(new BagOfWordsClassifier());
-//                questionHandlers.add(new WordEmbeddingsRecognizer());
+                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
 	public static List<QuestionResult> getQueryResult(CompositeQuery query) {
