@@ -40,11 +40,11 @@ public class OneOutValidation {
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
-		List<Question> allRelQ = QuestionRepository.Instance().allRelevantQuestions;
-	    WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(allRelQ);
+//		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer();
+		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(
+				QuestionRepository.Instance().oneOutRandomTrainingSet);
 		
 		for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-		    
 		    CompositeQuery forTestingQuery = null;
 			try {
 				forTestingQuery = App.questionParser.parseAll(forTesting.getBody());
@@ -65,6 +65,7 @@ public class OneOutValidation {
 		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
 			    }
+		    	System.out.println("success++: " + success);
 		    }
 		    
 		}
