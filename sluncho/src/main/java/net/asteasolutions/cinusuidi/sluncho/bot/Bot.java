@@ -31,7 +31,7 @@ import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionPar
 // and will be just a POCO object with the annotations
 public class Bot {
 	public static String getAnswer(String question) throws QuestionParserException {
-            Query query = App.questionParser.parse(question);
+            CompositeQuery query = App.questionParser.parseAll(question);
             
             List<QuestionResult> result = QueryAnswerer.getQueryResult(query);
             if(result != null) {

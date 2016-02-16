@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Collections;
 import java.util.PriorityQueue;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 
 import org.deeplearning4j.berkeley.Pair;
 
@@ -65,7 +66,7 @@ public class WordEmbeddingsRecognizer implements IQuestionRecognizer {
 	}
 
 	@Override
-	public List<QuestionResult> classify(Query query) {
+	public List<QuestionResult> classify(CompositeQuery query) {
 		// get different phrases to match
 		String queryPhrase = query.originalText;
 		String queryPhraseAdditionGroup = "";

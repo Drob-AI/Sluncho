@@ -27,6 +27,7 @@ import edu.smu.tspell.wordnet.VerbSynset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 import gate.Gate;
 import gate.util.compilers.eclipse.jdt.internal.compiler.lookup.AnnotatableTypeSystem;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.AnnotationType;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QueryToken;
@@ -181,21 +182,21 @@ public class SynonymusQueryEnchancer implements IPostPipelineProcessor {
 	}
 	
 	@Override
-	public ArrayList<Query> expand(ArrayList<Query> queries){
-		ArrayList<Query> result = new ArrayList<Query>(queries);
+	public ArrayList<CompositeQuery> expand(ArrayList<CompositeQuery> queries){
+		ArrayList<CompositeQuery> result = new ArrayList<CompositeQuery>(queries);
 		
 		for(int i = 0; i < queries.size(); i++) {
 			ArrayList<ArrayList<ArrayList<String>>> synonymPredicateSentences = generateSynonymusSentences(queries.get(i).toWordsWithTypes() , queries.get(i).getPredicatePosTokenIndex());
 			ArrayList<ArrayList<ArrayList<String>>> synonymSybjectSentences = generateSynonymusSentences(queries.get(i).toWordsWithTypes() , queries.get(i).getSubjectPosTokenIndex());
 			
 			for( ArrayList<ArrayList<String>> next: synonymPredicateSentences) {
-				Query newQuery = new Query(queries.get(i));
+				CompositeQuery newQuery = new CompositeQuery(queries.get(i));
 				newQuery.updateWith(next);
 				result.add(newQuery);
 			}
 			
 			for( ArrayList<ArrayList<String>> next: synonymSybjectSentences) {
-				Query newQuery = new Query(queries.get(i));
+				CompositeQuery newQuery = new CompositeQuery(queries.get(i));
 				newQuery.updateWith(next);
 				result.add(newQuery);
 			}

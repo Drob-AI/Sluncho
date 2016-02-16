@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Map.Entry;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 
 /**
  * This is basic example for documents classification done with DL4j
@@ -446,7 +447,7 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 	
 
 	@Override
-	public List<QuestionResult> classify(Query query) {
+	public List<QuestionResult> classify(CompositeQuery query) {
 
 		Map<String, Double> summaryResults = new HashMap<>();
 //		System.out.println("Sizeee" + bagOfClassifiers.size());

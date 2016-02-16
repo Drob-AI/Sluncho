@@ -19,6 +19,9 @@ import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.persist.PersistenceException;
 import gate.util.persistence.PersistenceManager;
+import java.text.BreakIterator;
+import java.util.Locale;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.helpers.GateDocumentHelper;
@@ -276,4 +279,25 @@ public class QuestionParser {
 //			System.out.println();
 //		}
 //	}
+
+    public CompositeQuery parseAll(String text) throws QuestionParserException {
+        BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.US);
+        iterator.setText(text);
+        int start = iterator.first();
+        List<String> sentences = new ArrayList<>();
+        for (int end = iterator.next();
+            end != BreakIterator.DONE;
+            start = end, end = iterator.next()) {
+            
+            sentences.add(text.substring(start,end));
+        }
+        
+        CompositeQuery q = new CompositeQuery(parse(text));
+        q.sentences = new ArrayList<>();
+        for(String sentence: sentences) {
+            q.sentences.add(parse(sentence));
+        }
+
+        return q;
+    }
 }
