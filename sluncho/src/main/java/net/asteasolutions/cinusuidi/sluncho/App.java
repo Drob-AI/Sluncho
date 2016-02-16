@@ -29,6 +29,7 @@ import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import net.asteasolutions.cinusuidi.sluncho.oneOutValidation.OneOutValidation;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QuestionParser;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
+import net.asteasolutions.cinusuidi.sluncho.utils.CommentSummarizer;
 import net.asteasolutions.cinusuidi.sluncho.utils.ThreeGramProbabilityRepo;
 import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
 

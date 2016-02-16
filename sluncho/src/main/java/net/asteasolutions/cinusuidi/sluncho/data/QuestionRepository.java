@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
+import net.asteasolutions.cinusuidi.sluncho.model.Comment;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import net.asteasolutions.cinusuidi.sluncho.utils.XmlParse;
 
@@ -229,4 +230,16 @@ public class QuestionRepository implements IDocumentRepository {
         }
         return null;
     }
+    
+    
+    public List<Comment> extractAllCommentsPerGroup(String groupId) {		
+ 		List<Comment> comments = this.mongoConnection.getAllComments(groupId);
+ 		List<Comment> goodComments = new ArrayList<>();
+ 		for(Comment c: comments) {
+ 			if(!c.isRelevantToOrgQ.equals("Bad") && !c.isRelevantToRelQ.equals("Bad")) {
+ 				goodComments.add(c);
+			}
+        }
+ 		return goodComments;
+	}
 }

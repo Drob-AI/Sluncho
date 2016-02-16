@@ -18,6 +18,8 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
 import java.util.List;
+
+import net.asteasolutions.cinusuidi.sluncho.model.Comment;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
 public class MongoDBFacade {
@@ -67,6 +69,12 @@ public class MongoDBFacade {
         MongoCollection<Document> qaCollection = slunchoDB.getCollection("XmlQuestions");
 
         qaCollection.insertOne(question.toJSON());
+    }
+    
+    public void createXmlComment(Comment comment) {
+        MongoCollection<Document> comCollection = slunchoDB.getCollection("XmlComments");
+
+        comCollection.insertOne(comment.toJSON());
     }
 
     public Document getXmlDocument(String id) {
@@ -145,5 +153,30 @@ public class MongoDBFacade {
             }
         });
         return allRelevantQuesions;
+    }
+    
+    public List<Comment> getAllComments(String groupId) {
+        MongoCollection<Document> comCollection = slunchoDB.getCollection("XmlComments");
+        
+        BasicDBObject query = new BasicDBObject();
+        query.put("orgQId", groupId);
+        FindIterable<Document> result = comCollection.find(query);
+        
+        final List<Comment> allCommentsPerGroup = new ArrayList<>();
+        result.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                
+                String commentId = (String) document.get("commentId");
+                String relQId = (String) document.get("relQId");
+                String orgQId = (String) document.get("orgQId");
+                String isRelevantToRelQ = (String) document.get("isRelevantToRelQ");
+                String isRelevantToOrgQ = (String) document.get("isRelevantToOrgQ");
+                String body = (String) document.get("body");
+                Comment c = new Comment(commentId, relQId, orgQId, isRelevantToRelQ, isRelevantToOrgQ, body);
+                allCommentsPerGroup.add(c);
+            }
+        });
+        return allCommentsPerGroup;
     }
 }

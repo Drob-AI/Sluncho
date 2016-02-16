@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.asteasolutions.cinusuidi.sluncho.facade.MongoDBFacade;
+import net.asteasolutions.cinusuidi.sluncho.model.Comment;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -148,6 +149,18 @@ public class XmlParse {
                     String relId = (String) relQuestionInfo.get("RelQId");
                     Question relativeQ = new Question(relId, RELEVANT_QUESTION, id, subject, body, isRelevant);
                     mongoConnection.createXmlDocument(relativeQ);
+                    
+                    Map<String, Object> comments = (Map<String, Object>) ((Map<String, Object>) relQValue).get("RelComment");
+                    for (Map.Entry<String, Object> comment : comments.entrySet()) {
+                    	String commentId = comment.getKey();
+                    	Map<String, Object> commentInfo = (Map<String, Object>) comment.getValue();
+                    	//String comId = (String) commentInfo.get("ComID");
+                    	String comBody = (String) commentInfo.get("RelCBody");
+                    	String isRelevantToOrgQ = (String) commentInfo.get("IsRelevantToOrgQ");
+                    	String isRelevantToRelQ = (String) commentInfo.get("IsRelevantToRelQ");
+                    	Comment c = new Comment(commentId, relId, id, isRelevantToRelQ, isRelevantToOrgQ, comBody);
+                    	mongoConnection.createXmlComment(c);
+                    }
                 }
             }
         }
