@@ -9,6 +9,7 @@ import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProce
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.BagOfWordsClassifier;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
@@ -29,6 +30,7 @@ public final class QueryAnswerer {
 //		questionHandlers.add(new AsteaEntitiesHandler());
                 questionHandlers.add(new SemanticRecognizer());
                 questionHandlers.add(new FullTextRecognizer());
+                questionHandlers.add(new BagOfWordsClassifier());
 //                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	

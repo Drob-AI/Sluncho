@@ -18,6 +18,7 @@ import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.BagOfWordsClassifier;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.Doc2VecGroupClassifier;
 
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
@@ -230,7 +231,8 @@ public class OneOutValidation {
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
         QueryAnswerer.questionHandlers.add(new FullTextRecognizer());
         QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
-        QueryAnswerer.questionHandlers.add(new WordEmbeddingsRecognizer(QuestionRepository.Instance().oneOutRandomTrainingSet));
+       QueryAnswerer.questionHandlers.add(new WordEmbeddingsRecognizer(QuestionRepository.Instance().oneOutRandomTrainingSet));
+       QueryAnswerer.questionHandlers.add(new BagOfWordsClassifier());
         
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
             CompositeQuery bquery = App.questionParser.parseAll(forTesting.getBody() + "." + forTesting.getSubject());
