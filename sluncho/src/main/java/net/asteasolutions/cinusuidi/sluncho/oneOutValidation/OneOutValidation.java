@@ -30,6 +30,7 @@ import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexer;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.IdentityDocumentParser;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionParserException;
+import net.asteasolutions.cinusuidi.sluncho.utils.CommentSummarizer;
 
 public class OneOutValidation {
 	//this could take hours: 
@@ -254,7 +255,11 @@ public class OneOutValidation {
                     break;
                 }
                 checksRemaining--;
-            }   
+            }
+            
+            String topGroupId = bresult.get(0).groupId();
+            String summary = CommentSummarizer.summarizeGroup(topGroupId);
+            System.out.println(">> Summary of comments for " + topGroupId + ": " + summary + "\n");
         }
         
         System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
