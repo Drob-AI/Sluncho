@@ -39,9 +39,9 @@ public class DocumentSearcher {
             Analyzer analyzer = new StandardAnalyzer();
             QueryParser parser = new QueryParser("questionId", analyzer);
             
-            String subject = SearchUtils.replaceSpacesWithOR(q.subject);
-            String predicate = SearchUtils.replaceSpacesWithOR(q.predicate);
-            String addition = SearchUtils.replaceSpacesWithOR(q.additionGroup);
+            String subject = QueryParser.escape(SearchUtils.replaceSpacesWithOR(q.subject));
+            String predicate = QueryParser.escape(SearchUtils.replaceSpacesWithOR(q.predicate));
+            String addition = QueryParser.escape(SearchUtils.replaceSpacesWithOR(q.additionGroup));
             
             Integer additionCount = SearchUtils.cleanup(q.additionGroup).split(" ").length;
             Float additionStrength = 0.5f + additionCount * 0.5f;

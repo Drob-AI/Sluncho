@@ -49,11 +49,10 @@ public class Query {
     	return result;
     }
     
-    public Query(Query other) {
-    	
+    public Query(Query other) {    	
     	this.originalText = other.originalText;
     	this.extendedOriginalText = other.extendedOriginalText;
-    	
+
         this.posTokens = copy(other.posTokens);
         this.orderedTokens = copy(other.orderedTokens);
         this.allNPTokens = copy(other.allNPTokens);

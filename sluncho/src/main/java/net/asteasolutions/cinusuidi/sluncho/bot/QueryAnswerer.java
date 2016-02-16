@@ -9,9 +9,11 @@ import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProce
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.BagOfWordsClassifier;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 //import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
@@ -29,51 +31,49 @@ public final class QueryAnswerer {
 //		questionHandlers.add(new AsteaEntitiesHandler());
                 questionHandlers.add(new SemanticRecognizer());
                 questionHandlers.add(new FullTextRecognizer());
-//                questionHandlers.add(new WordEmbeddingsRecognizer());
+                questionHandlers.add(new BagOfWordsClassifier());
+                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
 	public static List<QuestionResult> getQueryResult(CompositeQuery query) {
-		ArrayList<CompositeQuery> alternateQueries = postProcessQuery(query);
+            ArrayList<CompositeQuery> alternateQueries = postProcessQuery(query);
 
-		Iterator<CompositeQuery> iter = alternateQueries.iterator();
-                
-		ArrayList<QuestionResult> results = new ArrayList<>();
+            Iterator<CompositeQuery> iter = alternateQueries.iterator();
 
-        //TODO: find these some better way
-		while(iter.hasNext()) {
-            CompositeQuery curQuery = iter.next();
-            System.out.println("Search for answer for query: " + query.orderedTokens);
-            List<QuestionResult> qResults = getQueryAnswer(curQuery);
-            if(results.size() == 0){
-            	for(int i = 0; i < qResults.size(); i++) {
-            		qResults.get(i).votes = (qResults.size() - i);
-            	}
-            	results.addAll(qResults);
-            } else {
-	            for(QuestionResult foundResult: results) {
-	            	int i = 0;
-	            	for(QuestionResult newResult: qResults) {
-	            		if (foundResult.groupId().equals(newResult.groupId())) {
-	            			foundResult.votes += (qResults.size()  - i);
-	            		}
-	            		i++;
-	            	}
-	            }
+            ArrayList<QuestionResult> results = new ArrayList<>();
+
+            //TODO: find these some better way
+            while(iter.hasNext()) {
+                CompositeQuery curQuery = iter.next();
+                System.out.println("Search for answer for query: " + query.orderedTokens);
+                List<QuestionResult> qResults = getQueryAnswer(curQuery);
+                if(results.size() == 0){
+                    for(int i = 0; i < qResults.size(); i++) {
+                            qResults.get(i).votes = (qResults.size() - i);
+                    }
+                    results.addAll(qResults);
+                } else {
+                        for(QuestionResult foundResult: results) {
+                            int i = 0;
+                            for(QuestionResult newResult: qResults) {
+                                    if (foundResult.groupId().equals(newResult.groupId())) {
+                                            foundResult.votes += (qResults.size()  - i);
+                                    }
+                                    i++;
+                            }
+                        }
+                }
             }
-		}
         
-		results.sort(new Comparator<QuestionResult>() {
+            results.sort(new Comparator<QuestionResult>() {
 
-			@Override
-			public int compare(QuestionResult o1, QuestionResult o2) {
-				if(o1.certainty() ==  o2.certainty())
-					return 0;
-				
-				return o1.votes > o2.votes ? -1 : 1;
-			}
-		});
+                    @Override
+                    public int compare(QuestionResult o1, QuestionResult o2) {
+                        return ((Float)o2.certainty()).compareTo(o1.certainty());
+                    }
+            });
 		
-        return results;
+            return results;
 	}
 	
 	private static ArrayList<CompositeQuery> postProcessQuery(CompositeQuery query) {
@@ -91,20 +91,58 @@ public final class QueryAnswerer {
 	}
 	
 	private static List<QuestionResult> getQueryAnswer(CompositeQuery query) {
-		Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
-                
-        ArrayList<QuestionResult> answers = new ArrayList<>();
-		
-		while(iter.hasNext()) {
-            IQuestionRecognizer recognizer = iter.next();
-            List<QuestionResult> recognizerResults = recognizer.classify(query);
-            //TODO: add some kind of normalization for scores here ?
-            for (QuestionResult result: recognizerResults) {
-                answers.add(result);
+            Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
+
+            ArrayList<List<QuestionResult>> questionResults = new ArrayList<>();
+            ArrayList<QuestionResult> results = new ArrayList<>();
+
+            int maxLen = 0;
+            //TODO: find these some better way
+            while(iter.hasNext()) {
+                IQuestionRecognizer curRec = iter.next();
+                System.out.println("Search for answer for query: " + query.orderedTokens);
+                List<QuestionResult> qResults = curRec.classify(query);
+                maxLen = Integer.max(qResults.size(), maxLen);
+                questionResults.add(qResults);
             }
-		}
+            
+            for(List<QuestionResult> qResults: questionResults) {
+                float min = Float.MAX_VALUE, max = Float.MIN_VALUE;
+                for(QuestionResult newResult: qResults) {
+                    float score = newResult.certainty();
+                    min = Float.min(score, min);
+                    max = Float.max(score, max);
+                }
+                float range = max - min;
+                if(results.size() == 0){
+                    for(int i = 0; i < qResults.size(); i++) {
+                        QuestionResult result = qResults.get(i);
+                        result.setCertainty((result.certainty() - min) / range);
+                    }
+                    results.addAll(qResults);
+                } else {
+                    for(QuestionResult foundResult: results) {
+                        int i = 0;
+                        for(QuestionResult newResult: qResults) {
+                            if (foundResult.groupId().equals(newResult.groupId())) {
+                                float score = foundResult.certainty() + (newResult.certainty() - min) / range;
+                                foundResult.setCertainty(score);
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+        
+            results.sort(new Comparator<QuestionResult>() {
+
+                    @Override
+                    public int compare(QuestionResult o1, QuestionResult o2) {
+                        return ((Float)o2.certainty()).compareTo(o1.certainty());
+                    }
+            });
 		
-		return answers;
+            return results;
 	}
 	
 	private static class ClassifiedResult

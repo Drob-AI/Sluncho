@@ -39,7 +39,7 @@ public class FullTextSearcher {
 //            String queryString = "\"" + q.predicate + " " + q.subject + "\""; /*+ " " + q.additionGroup + "\""*/;
 //            Query query = parser.parse("(question:" + queryString + ")^4 OR (answer:" + queryString+ ") OR (context:" + queryString + ")^2");
             
-            String queryString = q.predicate + " " + q.subject + " " + q.additionGroup;
+            String queryString = QueryParser.escape(q.predicate) + " " + QueryParser.escape(q.subject) + " " + QueryParser.escape(q.additionGroup);
             queryString = SearchUtils.replaceSpacesWithOR(queryString);
             Query query = parser.parse("(question:" + queryString + ")^4 OR (answer:" + queryString+ ") OR (context:" + queryString + ")^2");
             
