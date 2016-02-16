@@ -159,7 +159,7 @@ public class XmlParse {
                     	String isRelevantToOrgQ = (String) commentInfo.get("IsRelevantToOrgQ");
                     	String isRelevantToRelQ = (String) commentInfo.get("IsRelevantToRelQ");
                     	Comment c = new Comment(commentId, relId, id, isRelevantToRelQ, isRelevantToOrgQ, comBody);
-                    	//mongoConnection.createXmlComment(c);
+                    	mongoConnection.createXmlComment(c);
                     }
                 }
             }

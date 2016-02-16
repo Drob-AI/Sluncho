@@ -154,4 +154,29 @@ public class MongoDBFacade {
         });
         return allRelevantQuesions;
     }
+    
+    public List<Comment> getAllComments(String groupId) {
+        MongoCollection<Document> comCollection = slunchoDB.getCollection("XmlComments");
+        
+        BasicDBObject query = new BasicDBObject();
+        query.put("orgQId", groupId);
+        FindIterable<Document> result = comCollection.find(query);
+        
+        final List<Comment> allCommentsPerGroup = new ArrayList<>();
+        result.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                
+                String commentId = (String) document.get("commentId");
+                String relQId = (String) document.get("relQId");
+                String orgQId = (String) document.get("orgQId");
+                String isRelevantToRelQ = (String) document.get("isRelevantToRelQ");
+                String isRelevantToOrgQ = (String) document.get("isRelevantToOrgQ");
+                String body = (String) document.get("body");
+                Comment c = new Comment(commentId, relQId, orgQId, isRelevantToRelQ, isRelevantToOrgQ, body);
+                allCommentsPerGroup.add(c);
+            }
+        });
+        return allCommentsPerGroup;
+    }
 }
