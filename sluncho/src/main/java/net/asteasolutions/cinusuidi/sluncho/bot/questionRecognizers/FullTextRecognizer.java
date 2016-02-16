@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexEntry;
@@ -29,7 +30,7 @@ import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 public class FullTextRecognizer implements IQuestionRecognizer {
 
     @Override
-    public List<QuestionResult> classify(Query query) {
+    public List<QuestionResult> classify(CompositeQuery query) {
         ArrayList<QuestionResult> result = new ArrayList<>();
         ArrayList<QuestionResult> trueResult = new ArrayList<>();
             

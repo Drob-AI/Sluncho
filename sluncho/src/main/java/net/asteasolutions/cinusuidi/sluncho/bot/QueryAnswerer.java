@@ -32,16 +32,16 @@ public final class QueryAnswerer {
 //                questionHandlers.add(new WordEmbeddingsRecognizer());
 	}
 	
-	public static List<QuestionResult> getQueryResult(Query query) {
-		ArrayList<Query> alternateQueries = postProcessQuery(query);
+	public static List<QuestionResult> getQueryResult(CompositeQuery query) {
+		ArrayList<CompositeQuery> alternateQueries = postProcessQuery(query);
 
-		Iterator<Query> iter = alternateQueries.iterator();
+		Iterator<CompositeQuery> iter = alternateQueries.iterator();
                 
 		ArrayList<QuestionResult> results = new ArrayList<>();
 
         //TODO: find these some better way
 		while(iter.hasNext()) {
-            Query curQuery = iter.next();
+            CompositeQuery curQuery = iter.next();
             System.out.println("Search for answer for query: " + query.orderedTokens);
             List<QuestionResult> qResults = getQueryAnswer(curQuery);
             if(results.size() == 0){
@@ -76,10 +76,10 @@ public final class QueryAnswerer {
         return results;
 	}
 	
-	private static ArrayList<Query> postProcessQuery(Query query) {
+	private static ArrayList<CompositeQuery> postProcessQuery(CompositeQuery query) {
 		Iterator<IPostPipelineProcessor> processorIter = postProcessors.iterator();
 		
-		ArrayList<Query> result = new ArrayList<Query>();
+		ArrayList<CompositeQuery> result = new ArrayList<>();
 		result.add(query);
 		
 		while(processorIter.hasNext()) {
@@ -90,7 +90,7 @@ public final class QueryAnswerer {
 		return result;
 	}
 	
-	private static List<QuestionResult> getQueryAnswer(Query query) {
+	private static List<QuestionResult> getQueryAnswer(CompositeQuery query) {
 		Iterator<IQuestionRecognizer> iter = questionHandlers.iterator();
                 
         ArrayList<QuestionResult> answers = new ArrayList<>();

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Map.Entry;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 
 /**
  * This is basic example for documents classification done with DL4j
@@ -129,11 +130,14 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 				
 				//iterations 10 no seed -> 72
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
-						.learningRate(0.025)
-		                .minLearningRate(0.001)
-		                .iterations(10)
-		                .batchSize(1000)
+						.learningRate(0.025f)
+//		                .minLearningRate(0.001)
+		                .layerSize(100)
+		                .iterations(1)
 		                .epochs(20)
+		                .windowSize(5)
+		                .minWordFrequency(2)
+		                .seed(42)
 		                .stopWords(stopWords)
 		                .iterate(iter)
 		                .trainWordVectors(true)
@@ -234,12 +238,12 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
-						.learningRate(0.1)
+						.learningRate(0.001)
 						.minLearningRate(0.05)
 						.trainElementsRepresentation(true)
 						.stopWords(stopWords)
 						.batchSize(30) // 10 
-						.epochs(50) // 20
+						.epochs(70) // 20
 						.iterate(iter)
 						.trainWordVectors(true)
 						.workers(3)
@@ -260,9 +264,9 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 				RelevantQuestionsIterator iter = new RelevantQuestionsIterator(questions);
 				
 				ParagraphVectors pVectors = new ParagraphVectors.Builder()
-						.learningRate(0.1)
+						.learningRate(0.01)
 						.minLearningRate(0.05)
-						.trainElementsRepresentation(true)
+//						.trainElementsRepresentation(true)
 						.stopWords(stopWords)
 						.batchSize(10)
 						.epochs(20)
@@ -307,14 +311,17 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 		// 1 2 5 6   -> 0.9 (top 5) 0.7 ( top 1)
 		// 1 2 5 6 7 -> 0.88 (top 5) 0.74 ( top 1) + 8 = 76
 		// 1 5 6 7 ->  0.9 (top 5) 0.72 ( top 1)
-//		t1.start();
+		
+		// 1 , 8 -> 62
+		t1.start();
 //		t2.start();
 //		t3.start();
 //		t4.start();
 //		t5.start();
 //		t6.start();
-		t7.start();
+//		t7.start();
 		t8.start();
+		
 		try {
 			t1.join();
 //			t2.join();
@@ -322,7 +329,7 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 //			t4.join();
 //			t5.join();
 //			t6.join();
-			t7.join();
+//			t7.join();
 			t8.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -446,7 +453,7 @@ public class Doc2VecGroupClassifier implements IQuestionRecognizer {
 	
 
 	@Override
-	public List<QuestionResult> classify(Query query) {
+	public List<QuestionResult> classify(CompositeQuery query) {
 
 		Map<String, Double> summaryResults = new HashMap<>();
 //		System.out.println("Sizeee" + bagOfClassifiers.size());

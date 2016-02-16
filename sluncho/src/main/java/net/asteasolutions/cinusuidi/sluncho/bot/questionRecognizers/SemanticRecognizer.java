@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import net.asteasolutions.cinusuidi.sluncho.documentIndex.DocumentIndexEntry;
@@ -28,9 +29,7 @@ import org.deeplearning4j.berkeley.Pair;
  * @author mihail
  */
 public class SemanticRecognizer implements IQuestionRecognizer {
-
-    @Override
-    public List<QuestionResult> classify(Query query) {
+    public List<QuestionResult> classifyQuery(Query query) {
         ArrayList<QuestionResult> result = new ArrayList<>();
         ArrayList<QuestionResult> trueResult = new ArrayList<>();
             
@@ -88,6 +87,34 @@ public class SemanticRecognizer implements IQuestionRecognizer {
         } catch (IOException | ParseException | QueryNodeException ex) {
             ex.printStackTrace();
         }
+        return trueResult;
+    }
+    @Override
+    public List<QuestionResult> classify(CompositeQuery query) {
+        ArrayList<QuestionResult> trueResult = new ArrayList<>();
+        HashMap<String, Float> groupMap = new HashMap<>();
+        for(Query sentance: query.sentences) {
+            List<QuestionResult> results = classifyQuery(query);
+            for (QuestionResult qr: results) {
+                if(!groupMap.containsKey(qr.groupId())) {
+                    groupMap.put(qr.groupId(), 0f);
+                }
+
+                groupMap.put(qr.groupId(), Float.max(qr.certainty(), groupMap.get(qr.groupId())));
+            }
+        }
+                    
+        for(String key: groupMap.keySet()) {
+            Float p = groupMap.get(key);
+            trueResult.add(new QuestionResult(key, key, p));
+        }
+        trueResult.sort(new Comparator<QuestionResult>() {
+            @Override
+            public int compare(QuestionResult pr1, QuestionResult pr2) {
+                return new Float(pr2.certainty()).compareTo(new Float(pr1.certainty()));
+            }
+        });
+        
         return trueResult;
     }
     

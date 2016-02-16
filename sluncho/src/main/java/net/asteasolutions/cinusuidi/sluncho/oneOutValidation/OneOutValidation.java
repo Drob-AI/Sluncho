@@ -14,6 +14,7 @@ import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import org.deeplearning4j.berkeley.Pair;
 
 import net.asteasolutions.cinusuidi.sluncho.App;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.QuestionResult;
 import net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection.POSPipelineProcessor;
@@ -44,11 +45,11 @@ public class OneOutValidation {
 				QuestionRepository.Instance().oneOutRandomTrainingSet);
 		
 		for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-			Query forTestingQuery = null;
+		    CompositeQuery forTestingQuery = null;
 			try {
-				forTestingQuery = App.questionParser.parse(forTesting.getBody());
+				forTestingQuery = App.questionParser.parseAll(forTesting.getBody());
 				POSPipelineProcessor proc = new POSPipelineProcessor();
-				ArrayList<Query> forTestingQueryList = new ArrayList<Query>();
+				ArrayList<CompositeQuery> forTestingQueryList = new ArrayList<CompositeQuery>();
 				forTestingQueryList.add(forTestingQuery);
 				forTestingQueryList = proc.expand(forTestingQueryList);
 				forTestingQuery = forTestingQueryList.get(0);
@@ -64,7 +65,7 @@ public class OneOutValidation {
 		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
 			    }
-		    	System.out.println("success++: " + success);
+		    	//System.out.println("success++: " + success);
 		    }
 		    
 		}
@@ -91,8 +92,7 @@ public class OneOutValidation {
         QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
 
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-            Query bquery = App.questionParser.parse(forTesting.getBody());
-            Query squery = App.questionParser.parse(forTesting.getSubject());
+            CompositeQuery squery = App.questionParser.parseAll(forTesting.getSubject() + "." + forTesting.getBody());
         
 //                List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
             List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
@@ -136,7 +136,7 @@ public class OneOutValidation {
 
             for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
                 Query bquery = App.questionParser.parse(forTesting.getBody());
-                Query squery = App.questionParser.parse(forTesting.getSubject());
+                CompositeQuery squery = App.questionParser.parseAll(forTesting.getSubject());
             
 //                List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
                 List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
@@ -171,7 +171,7 @@ public class OneOutValidation {
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
                 
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-            Query bquery = App.questionParser.parse(forTesting.getBody());
+            CompositeQuery bquery = App.questionParser.parseAll(forTesting.getBody());
 //            Query squery = App.questionParser.parse(forTesting.getSubject());
         
             List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
@@ -226,17 +226,17 @@ public class OneOutValidation {
         questionIndexer.indexAll();
         questionIndexer.close();
         
+        // assemble Voltron !!!...
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
         QueryAnswerer.questionHandlers.add(new FullTextRecognizer());
         QueryAnswerer.questionHandlers.add(new SemanticRecognizer());
+        QueryAnswerer.questionHandlers.add(new WordEmbeddingsRecognizer(QuestionRepository.Instance().oneOutRandomTrainingSet));
         
         for (Question forTesting: QuestionRepository.Instance().oneOutRandomTestingSet) {
-            Query bquery = App.questionParser.parse(forTesting.getBody());
-            Query squery = App.questionParser.parse(forTesting.getSubject());
+            CompositeQuery bquery = App.questionParser.parseAll(forTesting.getBody() + "." + forTesting.getSubject());
             System.err.println(forTesting.getSubject());
             
             List<QuestionResult> bresult = QueryAnswerer.getQueryResult(bquery);
-            List<QuestionResult> sresult = QueryAnswerer.getQueryResult(squery);
             int checksRemaining = topNResults;
 
             System.out.println("------------------------");

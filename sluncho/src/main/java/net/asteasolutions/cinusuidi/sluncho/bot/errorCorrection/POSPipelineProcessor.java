@@ -7,6 +7,7 @@ package net.asteasolutions.cinusuidi.sluncho.bot.errorCorrection;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.asteasolutions.cinusuidi.sluncho.bot.CompositeQuery;
 import net.asteasolutions.cinusuidi.sluncho.bot.Query;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipelineProcessor;
 import net.asteasolutions.cinusuidi.sluncho.questionparser.QueryToken;
@@ -300,9 +301,12 @@ public class POSPipelineProcessor implements IPostPipelineProcessor {
     }
 
     @Override
-    public ArrayList<Query> expand(ArrayList<Query> queries) {
-        for(Query q: queries) {
+    public ArrayList<CompositeQuery> expand(ArrayList<CompositeQuery> queries) {
+        for(CompositeQuery q: queries) {
             simpleAnnotate(q);
+            for(Query sentence: q.sentences) {
+                simpleAnnotate(sentence);
+            }
         }
         return queries;
     }
