@@ -42,6 +42,7 @@ public class OneOutValidation {
 	public void runWordEmbeddingsClassifierrRandomTest(Integer topNResults){
 		
 		Integer success = new Integer(0);
+    	double mapScoreN = 0.0;
 //		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer();
 		WordEmbeddingsRecognizer classifyer = new WordEmbeddingsRecognizer(
 				QuestionRepository.Instance().oneOutRandomTrainingSet);
@@ -59,14 +60,19 @@ public class OneOutValidation {
 				e.printStackTrace();
 			}
 		    List<QuestionResult> resultsLabel = classifyer.classify(forTestingQuery);
-		    resultsLabel = resultsLabel.subList(0, Math.min(resultsLabel.size(), topNResults));
+		    //resultsLabel = resultsLabel.subList(0, Math.min(resultsLabel.size(), topNResults));
 		    
+		    int checksRemaining = topNResults;
 //		    System.out.println("------------------------");
 		    for(QuestionResult labelResult: resultsLabel) {
 //		    	System.out.println(labelResult.getFirst() + ": "  + labelResult.getSecond());
-		    	if(labelResult.groupId().equals(forTesting.getGroupId())){
+                if(checksRemaining == 0) break;
+                if(labelResult.groupId().equals(forTesting.getGroupId())){
 			    	success++;
+                    mapScoreN += 1.0d / (double) (topNResults - checksRemaining + 1);
+                    break;
 			    }
+                checksRemaining--;
 		    	//System.out.println("success++: " + success);
 		    }
 		    
@@ -75,11 +81,13 @@ public class OneOutValidation {
 		
 		BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
 		BigDecimal precision = new BigDecimal(success).divide(all);
-		System.out.println(precision.toString());
-	}
+		System.out.println("Precision = " + precision.toString());
+        System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
+    }
         
     public void runSemanticClasifierRandomTest(int topNResults) throws QuestionParserException {
         Integer success = new Integer(0);
+    	double mapScoreN = 0.0;
         
         IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
 
@@ -107,6 +115,8 @@ public class OneOutValidation {
                 System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
                 if(labelResult.groupId().equals(forTesting.getGroupId())){
                     success++;
+                    mapScoreN += 1.0d / (double) (topNResults - checksRemaining + 1);
+                    break;
                 }
                 checksRemaining--;
             }
@@ -117,12 +127,14 @@ public class OneOutValidation {
 
         BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal precision = new BigDecimal(success).divide(all);
-        System.out.println(precision.toString());
+        System.out.println("Precision = " + precision.toString());
+        System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
     }
     
     public void runFulltextClasifierRandomTest(int topNResults) throws QuestionParserException {
     
             Integer success = new Integer(0);
+        	double mapScoreN = 0.0;
             
             IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
 	
@@ -151,6 +163,7 @@ public class OneOutValidation {
                     System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
                     if(labelResult.groupId().equals(forTesting.getGroupId())){
                         success++;
+                        mapScoreN += 1.0d / (double) (topNResults - checksRemaining + 1);
                         break;
                     }
                     checksRemaining--;
@@ -162,12 +175,14 @@ public class OneOutValidation {
 
             BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
             BigDecimal precision = new BigDecimal(success).divide(all);
-            System.out.println(precision.toString());
+            System.out.println("Precision = " + precision.toString());
+            System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
         }
     
     public void runDoc2vecClassifierrRandomTest(Integer topNResults) throws QuestionParserException{
         
         Integer success = new Integer(0);
+    	double mapScoreN = 0.0;
         
         QueryAnswerer.questionHandlers = new ArrayList<>();
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
@@ -187,6 +202,7 @@ public class OneOutValidation {
                 System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
                 if(labelResult.groupId().equals(forTesting.getGroupId())){
                     success++;
+                    mapScoreN += 1.0d / (double) (topNResults - checksRemaining + 1);
                     break;
                 }
                 checksRemaining--;
@@ -212,12 +228,14 @@ public class OneOutValidation {
 
         BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal precision = new BigDecimal(success).divide(all);
-        System.out.println(precision.toString());
+        System.out.println("Precision = " + precision.toString());
+        System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
         
     }
 	
     public void runFullSystemClassifierRandomTest(Integer topNResults) throws QuestionParserException {
     	Integer success = new Integer(0);
+    	double mapScoreN = 0.0;
         
         IDocumentRepository trainingSet = QuestionRepository.Instance().getTrainingSetRepository();
 
@@ -252,7 +270,8 @@ public class OneOutValidation {
                 
                 if(labelResult.groupId().equals(forTesting.getGroupId())){
                     success++;
-                    break;
+                    mapScoreN += 1.0d / (double) (topNResults - checksRemaining + 1);
+                    break; // there is only one possible matching group
                 }
                 checksRemaining--;
             }
@@ -265,7 +284,8 @@ public class OneOutValidation {
         System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal precision = new BigDecimal(success).divide(all);
-        System.out.println(precision.toString());
+        System.out.println("Precision = " + precision.toString());
+        System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
     }
 	
 }
