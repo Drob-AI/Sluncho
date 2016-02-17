@@ -39,7 +39,7 @@ public class Bot {
             	
             	System.out.println("Top results:");
             	for (QuestionResult res : result) {
-            		System.out.println(res.groupId()+ ": "  + res.certainty());
+            		System.out.println(res.groupId()+ ": "  + res.votes);
 				}
             	
             	String topGroupId = result.get(0).groupId();
