@@ -10,11 +10,11 @@ import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.IPostPipe
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.LuceneNamedEntityCorrector;
 import net.asteasolutions.cinusuidi.sluncho.bot.postPipelineProcessors.SynonymusQueryEnchancer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.BagOfWordsClassifier;
+import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.Doc2VecGroupClassifier;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.FullTextRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.IQuestionRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.SemanticRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
-//import net.asteasolutions.cinusuidi.sluncho.bot.questionRecognizers.WordEmbeddingsRecognizer;
 import net.asteasolutions.cinusuidi.sluncho.data.QuestionRepository;
 import net.asteasolutions.cinusuidi.sluncho.model.Question;
 
@@ -32,7 +32,8 @@ public final class QueryAnswerer {
                 questionHandlers.add(new SemanticRecognizer());
                 questionHandlers.add(new FullTextRecognizer());
                 questionHandlers.add(new BagOfWordsClassifier());
-                questionHandlers.add(new WordEmbeddingsRecognizer());
+                questionHandlers.add(new Doc2VecGroupClassifier());
+                questionHandlers.add(new WordEmbeddingsRecognizer(QuestionRepository.Instance().allQuestions));
 	}
 	
 	public static List<QuestionResult> getQueryResult(CompositeQuery query) {
@@ -41,6 +42,8 @@ public final class QueryAnswerer {
             Iterator<CompositeQuery> iter = alternateQueries.iterator();
 
             ArrayList<QuestionResult> results = new ArrayList<>();
+            
+            Doc2VecGroupClassifier.trainWithQuestions(QuestionRepository.Instance().allQuestions);
 
             //TODO: find these some better way
             while(iter.hasNext()) {
