@@ -33,6 +33,8 @@ import net.asteasolutions.cinusuidi.sluncho.questionparser.exception.QuestionPar
 import net.asteasolutions.cinusuidi.sluncho.utils.CommentSummarizer;
 
 public class OneOutValidation {
+	public static String Precision;
+	public static String Map;
 	//this could take hours: 
 	public OneOutValidation() {
 		QuestionRepository.Instance().extractRandomOneOutSet();
@@ -175,6 +177,7 @@ public class OneOutValidation {
 
             BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
             BigDecimal precision = new BigDecimal(success).divide(all);
+            
             System.out.println("Precision = " + precision.toString());
             System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
         }
@@ -284,6 +287,11 @@ public class OneOutValidation {
         System.out.println(success + "/" + QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal all = new BigDecimal(QuestionRepository.Instance().oneOutRandomTestingSet.size());
         BigDecimal precision = new BigDecimal(success).divide(all);
+        
+        Precision = "Precision = " + precision.toString();
+        Map = "MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size();
+        
+        
         System.out.println("Precision = " + precision.toString());
         System.out.println("MAP@" + topNResults + " = " + mapScoreN / (double) QuestionRepository.Instance().oneOutRandomTestingSet.size());
     }

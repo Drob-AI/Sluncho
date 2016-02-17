@@ -78,7 +78,6 @@ public class App
 //      testUnit.runDoc2vecClassifierrRandomTest(1);
 //      testUnit.runDoc2vecClassifierFullTest(); 
 //      testUnit.runWordEmbeddingsClassifierrRandomTest(5);
-        /*
         
       
         //Create new indexer for parsed documents
@@ -93,10 +92,12 @@ public class App
 	        try {
 	            answer = Bot.getAnswer(question);
 	            System.out.println(answer);
+	            System.out.println(OneOutValidation.Precision);
+	            System.out.println(OneOutValidation.Map);
 	        } catch (QuestionParserException e) {
 	        // TODO Auto-generated catch block
 	        }
-        }*/
+        }
 //        s.close();
     }
 }
