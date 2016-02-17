@@ -226,6 +226,8 @@ public class OneOutValidation {
         questionIndexer.indexAll();
         questionIndexer.close();
         
+        QueryAnswerer.questionHandlers = new ArrayList<>();
+        
         // assemble Voltron !!!...
         QueryAnswerer.questionHandlers.add(new Doc2VecGroupClassifier());
         QueryAnswerer.questionHandlers.add(new FullTextRecognizer());
@@ -243,7 +245,7 @@ public class OneOutValidation {
             for(QuestionResult labelResult: bresult) {
                 if(checksRemaining == 0) break;
                 
-                System.out.println(labelResult.groupId()+ ": "  + labelResult.votes);
+                System.out.println(labelResult.groupId()+ ": "  + labelResult.certainty());
                 
                 if(labelResult.groupId().equals(forTesting.getGroupId())){
                     success++;
