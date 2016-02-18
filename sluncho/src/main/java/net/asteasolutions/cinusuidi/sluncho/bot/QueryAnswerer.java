@@ -124,15 +124,19 @@ public final class QueryAnswerer {
                     }
                     results.addAll(qResults);
                 } else {
-                    for(QuestionResult foundResult: results) {
-                        int i = 0;
-                        for(QuestionResult newResult: qResults) {
+                	for(QuestionResult newResult: qResults) {
+                		boolean isNewAdded = false;
+                        for(QuestionResult foundResult: results) {
                             if (foundResult.groupId().equals(newResult.groupId())) {
                                 float score = foundResult.certainty() + (newResult.certainty() - min) / range;
                                 foundResult.setCertainty(score);
+                                isNewAdded = true;
+                                break;
                             }
-                            i++;
                         }
+                        if(isNewAdded) continue;
+                        newResult.setCertainty((newResult.certainty() - min) / range);
+                        results.add(newResult);
                     }
                 }
             }

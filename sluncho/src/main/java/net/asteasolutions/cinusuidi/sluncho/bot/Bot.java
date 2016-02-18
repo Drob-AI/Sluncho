@@ -31,15 +31,19 @@ import net.asteasolutions.cinusuidi.sluncho.utils.CommentSummarizer;
 //TODO: this should be emitted from the pipeline
 // and will be just a POCO object with the annotations
 public class Bot {
+	public static int topN = 5;
 	public static String getAnswer(String question) throws QuestionParserException {
             CompositeQuery query = App.questionParser.parseAll(question);
             
             List<QuestionResult> result = QueryAnswerer.getQueryResult(query);
             if(result != null && result.size() > 0) {
             	
-            	System.out.println("Top results:");
+            	System.out.println("Top "+Bot.topN+" results:");
+            	int n = 1;
             	for (QuestionResult res : result) {
             		System.out.println(res.groupId()+ ": "  + res.votes);
+            		if(n == Bot.topN) break;
+            		n++;
 				}
             	
             	String topGroupId = result.get(0).groupId();
